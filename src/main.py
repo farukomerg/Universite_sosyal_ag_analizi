@@ -11,11 +11,15 @@ if __name__ == "__main__":
 
     graph = Graph()
 
-    # DB’den yükle + pozisyonları NetworkX ile hesapla
+    # DB yolunu ayarla
     db_path = os.path.join(os.path.dirname(__file__), "../data/universite.db")
     loader = DataLoader(db_path)
+
+    # Grafı yükle
     loader.load_graph(graph)
 
-    window = MainWindow(graph)
+    # Pencereyi aç (Loader parametresini ekledik!)
+    window = MainWindow(graph, loader)
     window.show()
+
     sys.exit(app.exec_())
