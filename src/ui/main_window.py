@@ -1,9 +1,15 @@
+# ui/main_window.py
+
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout,
                              QHBoxLayout, QFrame, QPushButton, QMessageBox)
+from PyQt5.QtGui import QColor
 from .graph_canvas import GraphCanvas
 from .add_node_dialog import AddNodeDialog
+from .coloring_dialog import ColoringDialog  # YENİ
+# GÜNCELLEME: İçe aktarma yolu düzeltildi
 from core.node import Node
 import random
+import time
 
 
 class MainWindow(QMainWindow):
@@ -12,6 +18,7 @@ class MainWindow(QMainWindow):
         self.graph = graph
         self.loader = data_loader
         self.selected_node = None  # Seçilen düğümü tutmak için
+        self.coloring_result = {}  # Renklendirme sonucunu tutmak için YENİ
 
         self.setWindowTitle("Sosyal Ağ Analizi - Üniversite Grafı")
         self.setMinimumSize(1000, 600)
@@ -21,6 +28,7 @@ class MainWindow(QMainWindow):
         main_layout = QHBoxLayout(container)
 
         # SOL: Canvas
+        # Renklendirme sonucunu canvas'a iletmek için güncellendi
         self.canvas = GraphCanvas(graph, on_node_clicked=self.show_node_details)
         main_layout.addWidget(self.canvas, stretch=3)
 
@@ -58,7 +66,13 @@ class MainWindow(QMainWindow):
         self.btn_delete.setEnabled(False)  # Başlangıçta pasif
         right_layout.addWidget(self.btn_delete)
 
-        # 3. Ekle Butonu
+        # 3. Renklendirme Butonu (YENİ)
+        btn_color = QPushButton("🎨 Renklendir (Welsh-Powell)")
+        btn_color.setStyleSheet("background-color: #33aaff; color: white; font-weight: bold; margin-top: 10px;")
+        btn_color.clicked.connect(self.run_coloring)
+        right_layout.addWidget(btn_color)
+
+        # 4. Ekle Butonu
         btn_add = QPushButton("➕ Yeni Üniversite Ekle")
         btn_add.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold; margin-top: 10px;")
         btn_add.clicked.connect(self.open_add_dialog)
@@ -67,10 +81,67 @@ class MainWindow(QMainWindow):
         right_layout.addStretch()
         main_layout.addWidget(right_panel, stretch=1)
 
+    # ... Diğer metodlar (show_node_details, open_add_dialog, save_university, delete_selected_node, edit_selected_node)
+
+    # Renklendirme Metodu (YENİ)
+    def run_coloring(self):
+        print("NODE SAYISI:", len(self.graph.nodes))
+        print("EDGE SAYISI:", len(self.graph.edges))
+        print("ADJ:", self.graph.adj)
+
+        node_count = len(self.graph.nodes)
+        if node_count == 0:
+            QMessageBox.warning(self, "Uyarı", "Grafikte renklendirilecek düğüm yok.")
+            return
+
+        QMessageBox.information(
+            self,
+            "İşlem Başladı",
+            f"Welsh-Powell algoritması {node_count} düğüm üzerinde çalışıyor..."
+        )
+
+        try:
+            # ⏱ BAŞLANGIÇ ZAMANI
+            start_time = time.perf_counter()
+
+            # 🎨 ALGORİTMA
+            new_coloring = self.graph.welsh_powell_coloring()
+
+            # ⏱ BİTİŞ ZAMANI
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+
+            if not new_coloring:
+                QMessageBox.critical(self, "Hata", "Algoritma boş sonuç döndürdü!")
+                return
+
+            self.canvas.update_coloring(new_coloring)
+            self.coloring_result = new_coloring.copy()
+
+            dialog = ColoringDialog(self.graph, self.coloring_result, self)
+            dialog.exec_()
+
+            used_colors = len(set(self.coloring_result.values()))
+
+            QMessageBox.information(
+                self,
+                "Başarılı",
+                f"Graf başarıyla renklendirildi.\n\n"
+                f"• Düğüm Sayısı: {node_count}\n"
+                f"• Kullanılan Renk: {used_colors}\n"
+                f"• Çalışma Süresi: {elapsed_time:.6f} saniye"
+            )
+
+        except Exception as e:
+            QMessageBox.critical(self, "Hata", f"Renklendirme hatası: {e}")
+
+    # Mevcut metotlar (Kesilen kısımlar)
     def show_node_details(self, node):
         self.selected_node = node
         self.label_adi.setText(node.adi)
-        text = f"Kuruluş: {node.kurulus_yil}\nŞehir: {node.sehir}\nİlçe: {node.ilce}\nSıralama: {node.tr_siralama}"
+        # Eğer renklendirme yapıldıysa, detaylara renk ID'sini ekle
+        color_id_text = f"Renk ID: {self.coloring_result.get(node.uni_id, 'Yok')}\n" if self.coloring_result else ""
+        text = f"{color_id_text}Kuruluş: {node.kurulus_yil}\nŞehir: {node.sehir}\nİlçe: {node.ilce}\nSıralama: {node.tr_siralama}"
         self.label_detay.setText(text)
 
         # Butonları aktifleştir
@@ -79,6 +150,8 @@ class MainWindow(QMainWindow):
 
     def open_add_dialog(self):
         existing_unis = self.loader.get_university_names()
+        # AddNodeDialog'un import edilmesi gerekiyor
+        from .add_node_dialog import AddNodeDialog
         dialog = AddNodeDialog(existing_unis, self)
         if dialog.exec_():
             info, partners = dialog.get_data()
@@ -129,10 +202,18 @@ class MainWindow(QMainWindow):
             self.label_detay.setText("")
             self.btn_edit.setEnabled(False)
             self.btn_delete.setEnabled(False)
+
+            # Renklendirme sonucundan sil
+            if self.coloring_result and self.selected_node.uni_id in self.coloring_result:
+                del self.coloring_result[self.selected_node.uni_id]
+
             self.canvas.update()
 
     def edit_selected_node(self):
         if not self.selected_node: return
+
+        # AddNodeDialog'un import edilmesi gerekiyor
+        from .add_node_dialog import AddNodeDialog
 
         # Mevcut veriyi dialoga gönder
         dialog = AddNodeDialog([], self, edit_data=self.selected_node)
@@ -148,6 +229,7 @@ class MainWindow(QMainWindow):
             self.selected_node.ilce = info["ilce"]
             self.selected_node.kurulus_yil = info["kurulus_yil"]
             self.selected_node.ogrenci_sayisi = info["ogrenci_sayisi"]
+            # None kontrolü eklenebilir, ancak mevcut yapıda zaten int'e dönüştürülüyor
             self.selected_node.fakulte_sayisi = int(info["fakulte_sayisi"])
             self.selected_node.akademik_sayisi = info["akademik_sayisi"]
             self.selected_node.tr_siralama = info["tr_siralama"]

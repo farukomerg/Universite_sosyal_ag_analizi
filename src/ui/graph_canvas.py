@@ -1,3 +1,5 @@
+# ui/graph_canvas.py
+
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 from PyQt5.QtCore import Qt, QPoint
@@ -7,11 +9,33 @@ class GraphCanvas(QWidget):
     """
     Graf düğümlerini çizer, zoom ve pan (kaydırma) işlemlerini yönetir.
     """
+    # Renk paleti
+    COLOR_PALETTE_INFO = [
+        {"id": 1, "name": "Kırmızı", "color": QColor("#FF5733")},
+        {"id": 2, "name": "Yeşil", "color": QColor("#33FF57")},
+        {"id": 3, "name": "Mavi", "color": QColor("#3357FF")},
+        {"id": 4, "name": "Pembe", "color": QColor("#FF33F5")},
+        {"id": 5, "name": "Altın Sarısı", "color": QColor("#FFD733")},
+        {"id": 6, "name": "Turkuaz", "color": QColor("#33FFF0")},
+        {"id": 7, "name": "Mor", "color": QColor("#9933FF")},
+        {"id": 8, "name": "Turuncu", "color": QColor("#FF8D33")},
+        {"id": 9, "name": "Gri", "color": QColor("#A0A0A0")},
+        {"id": 10, "name": "Açık Yeşil", "color": QColor("#33FFC0")}
+    ]
+    COLOR_PALETTE = [info["color"] for info in COLOR_PALETTE_INFO]
 
-    def __init__(self, graph, on_node_clicked=None, parent=None):
+    # Renk ID'sine göre isim bulmak için yardımcı sözlük (Exporter için)
+    COLOR_NAME_MAP = {
+        info["id"]: info["name"]
+        for info in COLOR_PALETTE_INFO
+    }
+
+    def __init__(self, graph, on_node_clicked=None, coloring_result=None, parent=None):
         super().__init__(parent)
         self.graph = graph
         self.on_node_clicked = on_node_clicked  # callback
+        self.coloring_result = {}
+
 
         # Node yarıçapı
         self.node_radius = 20
@@ -24,6 +48,59 @@ class GraphCanvas(QWidget):
         self.first_resize = True  # İLK AÇILIŞ KONTROLÜ
 
         self.setStyleSheet("background-color: #f0f0f0;")
+
+    def update_coloring(self, coloring: dict):
+        """Renklendirme sonucunu günceller ve yeniden çizim ister."""
+        self.coloring_result.clear()
+        self.coloring_result.update(coloring)
+        print("RENKLENDİRME SONUCU GÜNCELLENDİ:", self.coloring_result)
+        self.update()
+
+    # ... Diğer metodlar (resizeEvent, fit_view)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.save()
+        painter.translate(self.offset)
+        painter.scale(self.scale_factor, self.scale_factor)
+
+        # Kenarlar
+        pen = QPen(Qt.darkGray, 2)
+        painter.setPen(pen)
+        for edge in self.graph.edges:
+            x1, y1 = edge.node1.x, edge.node1.y
+            x2, y2 = edge.node2.x, edge.node2.y
+            painter.drawLine(int(x1), int(y1), int(x2), int(y2))
+
+        # Düğümler
+        font = painter.font()
+        font.setBold(True)
+        painter.setFont(font)
+
+        for node in self.graph.nodes.values():
+            uni_id = node.uni_id
+            color_id = self.coloring_result.get(uni_id)
+
+            # Renk ataması
+            if color_id is not None and color_id > 0:
+                # Renk paletinden seç, palet dışına çıkarsa döngüsel olarak tekrarla
+                color_index = (color_id - 1) % len(self.COLOR_PALETTE)
+                fill_color = self.COLOR_PALETTE[color_index]
+            else:
+                fill_color = QColor("#00FF00")  # Varsayılan yeşil
+
+            painter.setPen(QPen(Qt.black, 2))
+            painter.setBrush(QBrush(fill_color))
+
+            painter.drawEllipse(int(node.x - self.node_radius), int(node.y - self.node_radius),
+                                self.node_radius * 2, self.node_radius * 2)
+
+            painter.setPen(QPen(Qt.black))
+            painter.drawText(int(node.x - self.node_radius), int(node.y - self.node_radius - 5), node.adi)
+
+        painter.restore()
+
 
     def resizeEvent(self, event):
         """Pencere boyutu değiştiğinde veya ilk açıldığında çalışır."""
@@ -76,39 +153,6 @@ class GraphCanvas(QWidget):
         )
         self.update()
 
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.save()
-        painter.translate(self.offset)
-        painter.scale(self.scale_factor, self.scale_factor)
-
-        # Kenarlar
-        pen = QPen(Qt.darkGray, 2)
-        painter.setPen(pen)
-        for edge in self.graph.edges:
-            x1, y1 = edge.node1.x, edge.node1.y
-            x2, y2 = edge.node2.x, edge.node2.y
-            painter.drawLine(int(x1), int(y1), int(x2), int(y2))
-
-        # Düğümler
-        font = painter.font()
-        font.setBold(True)
-        # Zoom yapınca yazı çok büyümesin diye fontu ters oranda küçültebiliriz (İsteğe bağlı)
-        # font.setPointSizeF(10 / self.scale_factor)
-        painter.setFont(font)
-
-        for node in self.graph.nodes.values():
-            painter.setPen(QPen(Qt.black, 2))
-            painter.setBrush(QBrush(QColor("#00FF00")))
-            painter.drawEllipse(int(node.x - self.node_radius), int(node.y - self.node_radius),
-                                self.node_radius * 2, self.node_radius * 2)
-
-            painter.setPen(QPen(Qt.black))
-            painter.drawText(int(node.x - self.node_radius), int(node.y - self.node_radius - 5), node.adi)
-
-        painter.restore()
-
     def wheelEvent(self, event):
         zoom_in_factor = 1.1
         zoom_out_factor = 0.9
@@ -146,3 +190,4 @@ class GraphCanvas(QWidget):
                     if self.on_node_clicked:
                         self.on_node_clicked(node)
                     return
+

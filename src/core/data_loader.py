@@ -65,43 +65,70 @@ class DataLoader:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
+        G_nx = nx.Graph()
+
         # 1. Node'ları Yükle
         cursor.execute("SELECT * FROM Üniversiteler")
         rows = cursor.fetchall()
 
-        G_nx = nx.Graph()
+        if not rows:
+            conn.close()
+            print("DataLoader: Veritabanında üniversite kaydı bulunamadı.")
+            return graph
 
         for row in rows:
-            node = Node(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8])
+            # row[6] fakülte sayısı, int beklenir
+            try:
+                fakulte_sayisi = int(row[6]) if row[6] is not None else 0
+            except ValueError:
+                fakulte_sayisi = 0
+
+            node = Node(row[0], row[1], row[2], row[3], row[4], row[5], fakulte_sayisi, row[7], row[8])
             graph.add_node(node)
             G_nx.add_node(node.uni_id)
 
-        # 2. Edge'leri (İlişkileri) Yükle - ARTIK DB'DEN GELİYOR
+        # 2. Edge'leri (İlişkileri) Yükle
         cursor.execute("SELECT source_id, target_id FROM Iliskiler")
         edges = cursor.fetchall()
 
         for u, v in edges:
             if u in graph.nodes and v in graph.nodes:
-                # Ağırlığı anlık hesapla
                 n1 = graph.nodes[u]
                 n2 = graph.nodes[v]
                 weight = graph.calculate_weight(n1, n2)
+
+                # SADECE BURADA GRAPH VE NETWORKX İKİSİNE DE KENAR EKLENİR
                 graph.add_edge(u, v)
                 G_nx.add_edge(u, v, weight=weight)
 
-        # 3. Pozisyonlama (Layout)
-        pos = nx.spring_layout(G_nx, seed=42, k=0.5)
-
-        scale = 300
-        center_x = 400
-        center_y = 300
-
-        for uni_id, p in pos.items():
-            if uni_id in graph.nodes:
-                graph.nodes[uni_id].x = int(center_x + p[0] * scale)
-                graph.nodes[uni_id].y = int(center_y + p[1] * scale)
-
         conn.close()
+
+        if not G_nx.nodes:
+            # Eğer düğümler bir nedenden dolayı G_nx'e eklenmediyse, layout atlanır.
+            return graph
+
+        # 3. Pozisyonlama (Layout) - Sadece düğüm varsa çalıştır
+        try:
+            # Layout hesaplama, büyük grafikler için zaman alabilir, ancak 50-1000 düğümde hızlıdır.
+            pos = nx.spring_layout(G_nx, seed=42, k=0.5, iterations=50)
+
+            scale = 300
+            center_x = 400
+            center_y = 300
+
+            for uni_id, p in pos.items():
+                if uni_id in graph.nodes:
+                    graph.nodes[uni_id].x = int(center_x + p[0] * scale)
+                    graph.nodes[uni_id].y = int(center_y + p[1] * scale)
+
+            print(f"DataLoader: {len(graph.nodes)} düğüm yüklendi ve konumlandırıldı.")
+
+        except Exception as e:
+            print(f"HATA: NetworkX Layout oluşturulamadı: {e}")
+            # Eğer layout başarısız olursa, düğümler (0,0) konumunda kalır.
+            # Uygulama yine de çalışır, ancak düğümler üst üste yığılmış olur.
+            pass
+
         return graph
 
     def get_university_names(self):

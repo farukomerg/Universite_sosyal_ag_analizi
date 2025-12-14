@@ -1,0 +1,57 @@
+# core/exporter.py
+
+import csv
+import os
+from .graph import Graph
+# YENİ: Renk haritasını içe aktarın (Eğer ana dosyanızda ui/graph_canvas.py yolunu biliyorsa)
+# NOT: Bu örnekte, dışa aktarıcının UI'dan bu bilgiyi alması için doğrudan import yapıyoruz.
+# Eğer bu bir döngüsel bağımlılık yaratırsa, bu bilgiyi graph objesine parametre olarak geçmek daha iyi bir çözümdür.
+# Ancak mevcut dosya yapınızda en basit çözüm budur.
+from ui.graph_canvas import GraphCanvas
+
+
+class Exporter:
+    def __init__(self, output_dir="output"):
+        self.output_dir = output_dir
+        os.makedirs(self.output_dir, exist_ok=True)
+
+    def export_coloring_to_csv(self, graph: Graph, coloring: dict, filename="welsh_powell_coloring.csv"):
+        """
+        Welsh-Powell renklendirme sonuçlarını CSV olarak dışa aktarır.
+        """
+        output_path = os.path.join(self.output_dir, filename)
+
+        # Renk ismini bulmak için yardımcı haritayı kullan
+        color_map = GraphCanvas.COLOR_NAME_MAP
+        palette_size = len(color_map)
+
+        # Ayırıcıyı uluslararası standart olan virgül (,) olarak değiştirdik.
+        # Noktalı virgül (;) kullanmak isterseniz `delimiter=','` yerine `delimiter=';'` kullanın.
+        delimiter = ','
+
+        try:
+            with open(output_path, 'w', newline='', encoding='utf-8-sig') as csvfile:
+                # YENİ ALAN: Renk Adı
+                fieldnames = ['ID', 'Üniversite Adı', 'Şehir', 'Renk ID', 'Renk Adı']
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=delimiter)
+
+                writer.writeheader()
+                for uni_id, color_id in coloring.items():
+                    node = graph.nodes.get(uni_id)
+
+                    # Renk ID'si palet boyutunu aşsa bile, döngüsel olarak doğru renk adını bul.
+                    mapped_color_id = ((color_id - 1) % palette_size) + 1
+                    color_name = color_map.get(mapped_color_id, f"Diğer Renk ({color_id})")
+
+                    if node:
+                        writer.writerow({
+                            'ID': node.uni_id,
+                            'Üniversite Adı': node.adi,
+                            'Şehir': node.sehir,
+                            'Renk ID': color_id,
+                            'Renk Adı': color_name  # <<< YENİ ALAN
+                        })
+
+            return output_path
+        except Exception as e:
+            raise Exception(f"CSV dışa aktarma hatası: {e}")

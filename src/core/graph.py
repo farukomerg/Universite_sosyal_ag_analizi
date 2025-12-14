@@ -1,6 +1,9 @@
+# core/graph.py
+
 from .node import Node
 from .edge import Edge
 from datetime import datetime
+
 
 class Graph:
     """
@@ -10,24 +13,38 @@ class Graph:
     """
 
     def __init__(self):
-        self.nodes = {}     # uni_id → Node
-        self.edges = []     # Edge listesi
+        self.nodes = {}  # uni_id → Node
+        self.edges = []  # Edge listesi
+        # YENİ: Komşuluk listesi (Adjacency List)
+        # {uni_id: set(neighbor_id, ...)}
+        self.adj = {}
 
-    # -----------------------
+        # -----------------------
+
     # NODE YÖNETİMİ
     # -----------------------
     def add_node(self, node: Node):
         if node.uni_id in self.nodes:
             raise ValueError(f"Node already exists: {node.uni_id}")
         self.nodes[node.uni_id] = node
+        self.adj[node.uni_id] = set()  # YENİ: Düğüm eklenince komşuluk listesini başlat
 
     def remove_node(self, uni_id: int):
         if uni_id not in self.nodes:
             return
-        # Kenarları sil
+
+        # Komşuluk listesinden ve kenar listesinden sil
+        if uni_id in self.adj:
+            neighbors_to_remove = list(self.adj[uni_id])
+            for neighbor_id in neighbors_to_remove:
+                if neighbor_id in self.adj:
+                    self.adj[neighbor_id].discard(uni_id)  # Komşunun listesinden de sil
+
+        del self.adj[uni_id]  # Kendi komşuluk listesini sil
+
         self.edges = [e for e in self.edges
                       if e.node1.uni_id != uni_id and e.node2.uni_id != uni_id]
-        # Düğümü sil
+
         del self.nodes[uni_id]
 
     # -----------------------
@@ -43,20 +60,31 @@ class Graph:
         if not n1 or not n2:
             raise ValueError("Node bulunamadı.")
 
-        # Edge mevcut mu?
-        for e in self.edges:
-            if (e.node1 == n1 and e.node2 == n2) or (e.node1 == n2 and e.node2 == n1):
-                return  # Çift eklemeyi engelle
+        # HIZLI KONTROL: Komşuluk listesi ile kenar mevcut mu?
+        if node_id2 in self.adj.get(node_id1, set()):
+            return  # Çift eklemeyi engelle
 
+        # Kenarı ekle
         weight = self.calculate_weight(n1, n2)
         self.edges.append(Edge(n1, n2, weight))
 
+        # YENİ: Komşuluk listesini güncelle
+        self.adj[node_id1].add(node_id2)
+        self.adj[node_id2].add(node_id1)
+
     def remove_edge(self, node_id1: int, node_id2: int):
+        # YENİ: Komşuluk listesini güncelle
+        if node_id1 in self.adj:
+            self.adj[node_id1].discard(node_id2)
+        if node_id2 in self.adj:
+            self.adj[node_id2].discard(node_id1)
+
+        # Kenar listesini temizle (daha yavaş olan kısım)
         self.edges = [
             e for e in self.edges
             if not (
-                (e.node1.uni_id == node_id1 and e.node2.uni_id == node_id2) or
-                (e.node1.uni_id == node_id2 and e.node2.uni_id == node_id1)
+                    (e.node1.uni_id == node_id1 and e.node2.uni_id == node_id2) or
+                    (e.node1.uni_id == node_id2 and e.node2.uni_id == node_id1)
             )
         ]
 
@@ -75,25 +103,106 @@ class Graph:
         uni_yasi_1 = now - n1.kurulus_yil
         uni_yasi_2 = now - n2.kurulus_yil
 
-        akademik = (n1.akademik_sayisi - n2.akademik_sayisi) ** 2
-        tr_siralama = (n1.tr_siralama - n2.tr_siralama) ** 2
-        ogrenci = (n1.ogrenci_sayisi - n2.ogrenci_sayisi) ** 2
+        # None olabilecek değerleri 0 kabul edelim
+        akademik_diff = n1.akademik_sayisi - n2.akademik_sayisi if n1.akademik_sayisi and n2.akademik_sayisi else 0
+        tr_siralama_diff = n1.tr_siralama - n2.tr_siralama if n1.tr_siralama and n2.tr_siralama else 0
+        ogrenci_diff = n1.ogrenci_sayisi - n2.ogrenci_sayisi if n1.ogrenci_sayisi and n2.ogrenci_sayisi else 0
+
+        akademik = akademik_diff ** 2
+        tr_siralama = tr_siralama_diff ** 2
+        ogrenci = ogrenci_diff ** 2
         uni_yasi = (uni_yasi_1 - uni_yasi_2) ** 2
 
         weight = 1 / (1 + akademik + tr_siralama + ogrenci + uni_yasi)
         return weight
 
     # -----------------------
-    # GRAF SELLEŞTİRME DESTEK FONK.
+    # GRAF ANALİZİ / RENKLENDİRME DESTEK
     # -----------------------
     def get_neighbors(self, uni_id: int):
-        neighbors = []
-        for e in self.edges:
-            if e.node1.uni_id == uni_id:
-                neighbors.append((e.node2, e.weight))
-            elif e.node2.uni_id == uni_id:
-                neighbors.append((e.node1, e.weight))
-        return neighbors
+        """Bir düğümün komşularını döndürür. O(1) veya O(Derece)"""
+        # HIZLI ERİŞİM
+        return self.adj.get(uni_id, set())
 
+    def get_degree(self, uni_id: int) -> int:
+        """Bir düğümün derecesini döndürür. O(1)"""
+        return len(self.get_neighbors(uni_id))
+
+    def welsh_powell_coloring(self) -> dict:
+        """
+        Welsh-Powell graf renklendirme algoritmasını uygular.
+        Sonuç: {uni_id: renk_id}
+        """
+        if not self.nodes:
+            return {}
+
+        coloring = {}
+        color_id = 1
+        uncolored_nodes = set(self.nodes.keys())
+
+        # Ana renklendirme döngüsü
+        while uncolored_nodes:
+
+            # 1. Henüz boyanmamış düğümleri azalan dereceye göre sırala (O(N log N))
+            # SADECE renklendirilmemiş düğümleri al
+            uncolored_list = list(uncolored_nodes)
+
+            # Renklendirilmemiş düğümlerin derecelerini hesapla
+            current_degrees = {uni_id: self.get_degree(uni_id) for uni_id in uncolored_list}
+
+            # Azalan dereceye göre sırala (Bu, Welsh-Powell'ın kilit adımıdır)
+            sorted_uncolored_ids = sorted(uncolored_list,
+                                          key=lambda uni_id: current_degrees[uni_id],
+                                          reverse=True)
+
+            # Eğer sıralanacak düğüm kalmadıysa (normalde olmaması gerekir)
+            if not sorted_uncolored_ids:
+                break
+
+            nodes_to_color_with_current = []
+
+            # 2. Mevcut renkle boyanacak düğümleri seç
+            for uni_id in sorted_uncolored_ids:
+
+                # uni_id zaten uncolored_nodes'un içinden geldiği için tekrar kontrol etmeye gerek yok
+                is_adjacent_to_colored = False
+
+                current_node_neighbors = self.get_neighbors(uni_id)
+
+                # Bu düğüm, nodes_to_color_with_current listesindeki herhangi bir düğüme komşu mu?
+                for colored_node_id in nodes_to_color_with_current:
+                    # Komşuluk kontrolü: O(Derece * Seçilen Düğüm Sayısı)
+                    if colored_node_id in current_node_neighbors:
+                        is_adjacent_to_colored = True
+                        break
+
+                # Eğer komşu değilse, bu renkle boyanabilir
+                if not is_adjacent_to_colored:
+                    nodes_to_color_with_current.append(uni_id)
+
+            # 3. Seçilen düğümleri boya ve listeden çıkar
+            if not nodes_to_color_with_current:
+                # BU NOKTADA HATA VARSA: Bu, uncolored_nodes içinde düğüm olmasına rağmen
+                # hiçbirine renk atanamadığı anlamına gelir.
+                # Algoritma doğruysa bu olmaz. Eğer oluyorsa, tüm renklendirilmemiş düğümler
+                # (uncolored_nodes) kendi aralarında tam bir küme oluşturuyor olmalı, ki bu
+                # imkansızdır çünkü en azından en yüksek dereceli ilk düğüm seçilmelidir.
+                # Eğer buraya düşüyorsanız, komşuluk listesi (self.adj) BOŞ demektir.
+                # DataLoader'da kenarların doğru yüklendiğinden emin olun.
+                print(f"HATA: {color_id}. renkte düğüm atanamadı. Komşuluk listelerini kontrol edin.")
+                break
+
+            for uni_id in nodes_to_color_with_current:
+                coloring[uni_id] = color_id
+                uncolored_nodes.remove(uni_id)
+
+            # Sonraki renge geç
+            color_id += 1
+
+        return coloring
+
+    # -----------------------
+    # GRAF SELLEŞTİRME DESTEK FONK.
+    # -----------------------
     def __repr__(self):
         return f"Graph(nodes={len(self.nodes)}, edges={len(self.edges)})"
