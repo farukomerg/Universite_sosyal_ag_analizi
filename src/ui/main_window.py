@@ -1,15 +1,22 @@
 # ui/main_window.py
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout,
                              QHBoxLayout, QFrame, QPushButton, QMessageBox)
+
 from PyQt5.QtGui import QColor
 from .graph_canvas import GraphCanvas
 from .add_node_dialog import AddNodeDialog
-from .coloring_dialog import ColoringDialog  # YENİ
-# GÜNCELLEME: İçe aktarma yolu düzeltildi
-from core.node import Node
+from .coloring_dialog import ColoringDialog
+import core.node
 import random
 import time
+from .path_dialog import PathDialog
+from PyQt5.QtCore import QTimer
+
 
 
 class MainWindow(QMainWindow):
@@ -72,7 +79,25 @@ class MainWindow(QMainWindow):
         btn_color.clicked.connect(self.run_coloring)
         right_layout.addWidget(btn_color)
 
-        # 4. Ekle Butonu
+        # 4. BFS Butonu
+        btn_bfs = QPushButton("🌊 BFS (Sığ Arama)")
+        btn_bfs.setStyleSheet("background-color: #00BCD4; color: white; font-weight: bold; margin-top: 10px;")
+        btn_bfs.clicked.connect(lambda: self.run_algo("BFS"))
+        right_layout.addWidget(btn_bfs)
+
+        # 5. DFS Butonu
+        btn_dfs = QPushButton("⬇️ DFS (Derin Arama)")  # Ok işareti
+        btn_dfs.setStyleSheet("background-color: #9C27B0; color: white; font-weight: bold; margin-top: 10px;")
+        btn_dfs.clicked.connect(lambda: self.run_algo("DFS"))
+        right_layout.addWidget(btn_dfs)
+
+        # 6. Dijkstra Butonu (YENİ)
+        btn_path = QPushButton("📍 En Kısa Yol (Dijkstra)")
+        btn_path.setStyleSheet("background-color: #FF9800; color: white; font-weight: bold; margin-top: 10px;")
+        btn_path.clicked.connect(self.open_path_dialog)
+        right_layout.addWidget(btn_path)
+
+        # 7. Ekle Butonu
         btn_add = QPushButton("➕ Yeni Üniversite Ekle")
         btn_add.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold; margin-top: 10px;")
         btn_add.clicked.connect(self.open_add_dialog)
@@ -80,6 +105,8 @@ class MainWindow(QMainWindow):
 
         right_layout.addStretch()
         main_layout.addWidget(right_panel, stretch=1)
+
+
 
     # ... Diğer metodlar (show_node_details, open_add_dialog, save_university, delete_selected_node, edit_selected_node)
 
@@ -236,3 +263,76 @@ class MainWindow(QMainWindow):
 
             self.show_node_details(self.selected_node)  # Paneli güncelle
             self.canvas.update()  # Grafikteki ismin değişmesi için
+
+    def open_path_dialog(self):
+        # Üniversite listesini al
+        uni_list = self.loader.get_university_names()
+
+        dialog = PathDialog(uni_list, self)
+        if dialog.exec_():
+            start_id, end_id, start_name, end_name = dialog.get_selection()
+
+            if start_id == end_id:
+                QMessageBox.warning(self, "Hata", "Başlangıç ve Bitiş aynı olamaz!")
+                return
+
+            # Algoritmayı Çalıştır
+            cost, path = self.graph.dijkstra(start_id, end_id)
+
+            if cost == float('inf'):
+                QMessageBox.warning(self, "Sonuç", f"{start_name} ile {end_name} arasında bir bağlantı yolu yok.")
+                self.canvas.set_path([])  # Temizle
+            else:
+                self.canvas.set_path(path)
+                QMessageBox.information(self, "Yol Bulundu",
+                                        f"Rota: {start_name} -> {end_name}\n"
+                                        f"Toplam Maliyet: {cost:.4f}\n"
+                                        f"Adım Sayısı: {len(path) - 1}")
+
+    # ... (Sınıfın diğer metotları) ...
+
+    def run_algo(self, algo_type):
+        """BFS veya DFS animasyonunu başlatır."""
+        if not self.selected_node:
+            QMessageBox.warning(self, "Uyarı", f"{algo_type} başlatmak için haritadan bir Başlangıç Düğümü seçin!")
+            return
+
+        # 1. Algoritmayı çalıştırıp sırayı al
+        start_id = self.selected_node.uni_id
+        if algo_type == "BFS":
+            self.animation_sequence = self.graph.bfs(start_id)
+        else:
+            self.animation_sequence = self.graph.dfs(start_id)
+
+        if not self.animation_sequence:
+            return
+
+        # 2. Animasyon Hazırlığı
+        self.canvas.highlighted_path = []  # Varsa eski yolu temizle
+        self.canvas.algo_nodes = []  # Temizle
+        self.canvas.update()
+
+        # Bilgi ver
+        QMessageBox.information(self, "Başlıyor",
+                                f"{algo_type} Algoritması\nBaşlangıç: {self.selected_node.adi}\nToplam Gezilecek: {len(self.animation_sequence)}")
+
+        # 3. Timer Başlat (Her 200ms'de bir adım)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.next_animation_step)
+        self.timer.start(200)  # Hızı buradan ayarla (düşük = hızlı)
+
+    def next_animation_step(self):
+        """Timer her çalıştığında bir sonraki düğümü boyar."""
+        if self.animation_sequence:
+            # Listeden sıradaki düğümü al
+            next_node = self.animation_sequence.pop(0)
+
+            # Canvas listesine ekle
+            self.canvas.algo_nodes.append(next_node)
+
+            # Ekranı yenile (Bu sayede boyanmış halini görürüz)
+            self.canvas.update()
+        else:
+            # Liste bittiyse durdur
+            self.timer.stop()
+            QMessageBox.information(self, "Bitti", "Arama tamamlandı!")

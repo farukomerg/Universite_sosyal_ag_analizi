@@ -1,8 +1,10 @@
 # core/graph.py
 
+import math
 from .node import Node
 from .edge import Edge
 from datetime import datetime
+import heapq
 
 
 class Graph:
@@ -93,27 +95,36 @@ class Graph:
     # -----------------------
     def calculate_weight(self, n1: Node, n2: Node) -> float:
         """
-        Yeni formül:
-        weight = 1 / (1 + (akademik_sayisi farkı)^2 +
-                          (tr_siralama farkı)^2 +
-                          (ogrenci_sayisi farkı)^2 +
-                          (universite_yasi farkı)^2 )
+        PDF'deki DOĞRU Formül:
+        Weight = 1 + sqrt( (AktiflikFarkı)^2 + (EtkileşimFarkı)^2 + ... )
         """
-        now = datetime.now().year
-        uni_yasi_1 = now - n1.kurulus_yil
-        uni_yasi_2 = now - n2.kurulus_yil
+        # None kontrolü (Veritabanında boş veri varsa 0 sayalım)
+        akademik_1 = n1.akademik_sayisi if n1.akademik_sayisi else 0
+        akademik_2 = n2.akademik_sayisi if n2.akademik_sayisi else 0
 
-        # None olabilecek değerleri 0 kabul edelim
-        akademik_diff = n1.akademik_sayisi - n2.akademik_sayisi if n1.akademik_sayisi and n2.akademik_sayisi else 0
-        tr_siralama_diff = n1.tr_siralama - n2.tr_siralama if n1.tr_siralama and n2.tr_siralama else 0
-        ogrenci_diff = n1.ogrenci_sayisi - n2.ogrenci_sayisi if n1.ogrenci_sayisi and n2.ogrenci_sayisi else 0
+        siralama_1 = n1.tr_siralama if n1.tr_siralama else 1000  # Boşsa kötü sıralama varsay
+        siralama_2 = n2.tr_siralama if n2.tr_siralama else 1000
 
-        akademik = akademik_diff ** 2
-        tr_siralama = tr_siralama_diff ** 2
-        ogrenci = ogrenci_diff ** 2
-        uni_yasi = (uni_yasi_1 - uni_yasi_2) ** 2
+        ogrenci_1 = n1.ogrenci_sayisi if n1.ogrenci_sayisi else 0
+        ogrenci_2 = n2.ogrenci_sayisi if n2.ogrenci_sayisi else 0
 
-        weight = 1 / (1 + akademik + tr_siralama + ogrenci + uni_yasi)
+        now = 2025  # Sabit yıl veya datetime.now().year
+        yas_1 = now - (n1.kurulus_yil if n1.kurulus_yil else 2000)
+        yas_2 = now - (n2.kurulus_yil if n2.kurulus_yil else 2000)
+
+        # Farkların Karesi
+        fark_akademik = (akademik_1 - akademik_2) ** 2
+        fark_siralama = (siralama_1 - siralama_2) ** 2
+        fark_ogrenci = (ogrenci_1 - ogrenci_2) ** 2
+        fark_yas = (yas_1 - yas_2) ** 2
+
+        # Formül: 1 + Karekök(Toplam Fark)
+        # Farklılık arttıkça Maliyet artar. Benzerler arası maliyet düşer.
+        # Ölçekleme (Scale) sorunu olmaması için farkları normalize etmek gerekebilir ama
+        # PDF formülü direkt istiyor:
+        total_diff = fark_akademik + fark_siralama + fark_ogrenci + fark_yas
+        weight = 1 + math.sqrt(total_diff)
+
         return weight
 
     # -----------------------
@@ -201,8 +212,125 @@ class Graph:
 
         return coloring
 
+    def dijkstra(self, start_id: int, end_id: int):
+        """
+        Dijkstra algoritması ile en kısa yolu bulur.
+        Dönüş: (toplam_maliyet, yol_listesi) -> (float, [Node, Node, ...])
+        """
+        if start_id not in self.nodes or end_id not in self.nodes:
+            return float('inf'), []
+
+        # Priority Queue: (Maliyet, Şu anki Node ID)
+        # Başlangıç noktasının maliyeti 0
+        queue = [(0, start_id)]
+
+        # En kısa mesafeleri tutan sözlük (Sonsuz ile başlat)
+        distances = {node_id: float('inf') for node_id in self.nodes}
+        distances[start_id] = 0
+
+        # Yolu geri takip etmek için (Nereden geldik?)
+        predecessors = {node_id: None for node_id in self.nodes}
+
+        while queue:
+            current_cost, current_id = heapq.heappop(queue)
+
+            # Eğer hedefi bulduysak döngüyü kır (Erken çıkış)
+            if current_id == end_id:
+                break
+
+            # Eğer bulduğumuz yol, zaten bildiğimizden daha uzunsa atla
+            if current_cost > distances[current_id]:
+                continue
+
+            # Komşuları gez
+            # self.adj[current_id] komşuluk setidir
+            for neighbor_id in self.adj.get(current_id, set()):
+                n1 = self.nodes[current_id]
+                n2 = self.nodes[neighbor_id]
+
+                # Ağırlığı dinamik hesapla
+                weight = self.calculate_weight(n1, n2)
+                distance = current_cost + weight
+
+                # Eğer daha kısa bir yol bulduysak güncelle
+                if distance < distances[neighbor_id]:
+                    distances[neighbor_id] = distance
+                    predecessors[neighbor_id] = current_id
+                    heapq.heappush(queue, (distance, neighbor_id))
+
+        # --- YOLU GERİ OLUŞTURMA (Backtracking) ---
+        path = []
+        curr = end_id
+
+        # Hedefe hiç ulaşılmadıysa
+        if distances[end_id] == float('inf'):
+            return float('inf'), []
+
+        while curr is not None:
+            path.insert(0, self.nodes[curr])
+            curr = predecessors[curr]
+
+        return distances[end_id], path
+
     # -----------------------
     # GRAF SELLEŞTİRME DESTEK FONK.
     # -----------------------
     def __repr__(self):
         return f"Graph(nodes={len(self.nodes)}, edges={len(self.edges)})"
+
+    def bfs(self, start_id: int):
+        """
+        Breadth-First Search (Sığ Öncelikli Arama).
+        Yakındaki komşulardan başlayarak dalga dalga yayılır.
+        Dönüş: Ziyaret sırasına göre Node listesi.
+        """
+        if start_id not in self.nodes:
+            return []
+
+        visited = set()
+        queue = [start_id]
+        visited.add(start_id)
+        order = []  # Ziyaret sırası
+
+        while queue:
+            current_id = queue.pop(0)  # Kuyruğun başından al
+            order.append(self.nodes[current_id])
+
+            # Komşuları gez
+            # self.adj[current_id] set olduğu için sıralı gelmeyebilir,
+            # görsel tutarlılık için sorted() diyebiliriz (isteğe bağlı)
+            for neighbor_id in sorted(list(self.adj.get(current_id, set()))):
+                if neighbor_id not in visited:
+                    visited.add(neighbor_id)
+                    queue.append(neighbor_id)
+
+        return order
+
+    def dfs(self, start_id: int):
+        """
+        Depth-First Search (Derin Öncelikli Arama).
+        Bir kolda gidebildiği kadar derine gider, sonra geri döner.
+        Dönüş: Ziyaret sırasına göre Node listesi.
+        """
+        if start_id not in self.nodes:
+            return []
+
+        visited = set()
+        stack = [start_id]  # Yığın kullanıyoruz
+        order = []
+
+        while stack:
+            current_id = stack.pop()  # Yığının sonundan al
+
+            if current_id not in visited:
+                visited.add(current_id)
+                order.append(self.nodes[current_id])
+
+                # Komşuları yığına ekle
+                # (Ters sıralarsak, küçük ID'li komşuya önce gider - görsel tercih)
+                neighbors = sorted(list(self.adj.get(current_id, set())), reverse=True)
+                for neighbor_id in neighbors:
+                    if neighbor_id not in visited:
+                        stack.append(neighbor_id)
+
+        return order
