@@ -159,19 +159,19 @@ class DataLoader:
         conn.close()
         return new_id
 
-    def add_relation(self, u_id, v_id):
-        """İki üniversite arasındaki ilişkiyi DB'ye kaydeder."""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        # Çift yönlü kontrol (1-2 ve 2-1 aynıdır, ama basitlik için direkt ekliyoruz, unique constraint var)
-        try:
-            # ID'leri sıralı kaydedelim ki (1,2) ile (2,1) aynı olsun
-            s, t = sorted((u_id, v_id))
-            cursor.execute("INSERT OR IGNORE INTO Iliskiler (source_id, target_id) VALUES (?, ?)", (s, t))
-            conn.commit()
-        except:
-            pass
-        conn.close()
+    # def add_relation(self, u_id, v_id):
+    #     """İki üniversite arasındaki ilişkiyi DB'ye kaydeder."""
+    #     conn = sqlite3.connect(self.db_path)
+    #     cursor = conn.cursor()
+    #     # Çift yönlü kontrol (1-2 ve 2-1 aynıdır, ama basitlik için direkt ekliyoruz, unique constraint var)
+    #     try:
+    #         # ID'leri sıralı kaydedelim ki (1,2) ile (2,1) aynı olsun
+    #         s, t = sorted((u_id, v_id))
+    #         cursor.execute("INSERT OR IGNORE INTO Iliskiler (source_id, target_id) VALUES (?, ?)", (s, t))
+    #         conn.commit()
+    #     except:
+    #         pass
+    #     conn.close()
 
     def delete_university(self, uni_id):
         """Üniversiteyi ve ilişkilerini siler."""
@@ -207,3 +207,56 @@ class DataLoader:
         cursor.execute(query, values)
         conn.commit()
         conn.close()
+
+    def delete_relation(self, id1, id2):
+        """Veritabanından iki üniversite arasındaki bağı siler."""
+        # 1. Diğer metotlardaki gibi yeni bir bağlantı oluşturuyoruz
+        conn = sqlite3.connect(self.db_path)
+
+        # 2. Tablo adınız 'Iliskiler', sütunlarınız 'source_id' ve 'target_id'
+        # add_relation içinde sorted() kullandığınız için burada da sıralıyoruz
+        s, t = sorted((id1, id2))
+
+        query = "DELETE FROM Iliskiler WHERE source_id = ? AND target_id = ?"
+
+        try:
+            cursor = conn.cursor()
+            cursor.execute(query, (s, t))
+            conn.commit()
+
+            if cursor.rowcount > 0:
+                print(f"DB: {s} ve {t} arasındaki bağlantı başarıyla silindi.")
+            else:
+                print(f"DB UYARI: Silinecek bağlantı bulunamadı (IDler: {s}-{t}).")
+
+        except Exception as e:
+            print(f"Bağlantı silinirken DB hatası: {e}")
+            raise e  # Hatayı MainWindow'un yakalaması için yukarı fırlatıyoruz
+        finally:
+            conn.close()
+
+    def add_relation(self, u_id, v_id):
+        """İki üniversite arasındaki ilişkiyi DB'ye kaydeder."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        try:
+            s, t = sorted((u_id, v_id))
+            query = "INSERT OR IGNORE INTO Iliskiler (source_id, target_id) VALUES (?, ?)"
+
+            cursor.execute(query, (s, t))
+            conn.commit()
+
+            # Eğer etkilenen satır sayısı 0'dan büyükse yeni eklenmiştir
+            if cursor.rowcount > 0:
+                print(f"DB: {s} ve {t} arasında yeni bağlantı oluşturuldu.")
+                return True
+            else:
+                print(f"DB: Bu bağlantı zaten mevcut, eklenmedi.")
+                return False  # Bağlantı zaten var
+
+        except Exception as e:
+            print(f"Bağlantı eklenirken DB hatası: {e}")
+            return None  # Teknik bir hata oluştu
+        finally:
+            conn.close()
