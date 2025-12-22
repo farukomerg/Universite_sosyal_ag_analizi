@@ -73,7 +73,7 @@ class Exporter:
         try:
             with open(output_path, 'w', newline='', encoding='utf-8-sig') as csvfile:
                 fieldnames = ['Sıra', 'Üniversite Adı', 'Şehir', 'Derece (Bağlantı Sayısı)', 'Toplam Ağırlık',
-                              'Ortalama Ağırlık']
+                              'Ortalama Ağırlık', 'Komşular']
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
                 writer.writeheader()
@@ -84,7 +84,8 @@ class Exporter:
                         'Şehir': row['sehir'],
                         'Derece (Bağlantı Sayısı)': row['derece'],
                         'Toplam Ağırlık': row['toplam_agirlik'],
-                        'Ortalama Ağırlık': row['ortalama_agirlik']
+                        'Ortalama Ağırlık': row['ortalama_agirlik'],
+                        'Komşular': row['komsular']
                     })
             return output_path
         except Exception as e:

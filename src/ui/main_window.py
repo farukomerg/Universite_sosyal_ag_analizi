@@ -132,9 +132,9 @@ class MainWindow(QMainWindow):
         right_layout.addStretch()
         main_layout.addWidget(right_panel, stretch=1)
 
-        self.btn_import = QPushButton("📥 JSON Veri İçe Aktar")
-        self.btn_import.clicked.connect(self.import_json_action)
-        right_layout.addWidget(self.btn_import)
+        # self.btn_import = QPushButton("📥 JSON Veri İçe Aktar")
+        # self.btn_import.clicked.connect(self.import_json_action)
+        # right_layout.addWidget(self.btn_import)
 
 
 
@@ -542,6 +542,7 @@ class MainWindow(QMainWindow):
                 <th>Derece</th>
                 <th>Toplam Ağırlık</th>
                 <th>Ort. Ağırlık</th>
+                <th>Komşular</th>
             </tr>
         """
         for i, item in enumerate(top_5, 1):
@@ -552,6 +553,7 @@ class MainWindow(QMainWindow):
                 <td align='center'>{item['derece']}</td>
                 <td align='center'>{item['toplam_agirlik']}</td>
                 <td align='center'>{item['ortalama_agirlik']}</td>
+                <td><i style='color: #555;'>{item['komsular']}</i></td>
             </tr>
             """
         table_html += "</table>"
@@ -578,15 +580,15 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 QMessageBox.critical(self, "Hata", f"Dışa aktarma başarısız: {e}")
 
-    def import_json_action(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "JSON Dosyası Seç", "", "JSON Files (*.json)")
-        if file_path:
-            success = self.loader.import_from_json(file_path)
-            if success:
-                QMessageBox.information(self, "Başarılı", "Veriler içe aktarıldı. Uygulama yeniden başlatılıyor...")
-                # Verileri graf nesnesine tekrar yükle (ekranın güncellenmesi için)
-                self.graph = self.loader.load_graph()  # Mevcut load_graph metodunuz
-                self.canvas.graph = self.graph
-                self.canvas.update()
-            else:
-                QMessageBox.critical(self, "Hata", "JSON aktarımı sırasında bir sorun oluştu.")
+    # def import_json_action(self):
+    #     file_path, _ = QFileDialog.getOpenFileName(self, "JSON Dosyası Seç", "", "JSON Files (*.json)")
+    #     if file_path:
+    #         success = self.loader.import_from_json(file_path)
+    #         if success:
+    #             QMessageBox.information(self, "Başarılı", "Veriler içe aktarıldı. Uygulama yeniden başlatılıyor...")
+    #             # Verileri graf nesnesine tekrar yükle (ekranın güncellenmesi için)
+    #             self.graph = self.loader.load_graph()  # Mevcut load_graph metodunuz
+    #             self.canvas.graph = self.graph
+    #             self.canvas.update()
+    #         else:
+    #             QMessageBox.critical(self, "Hata", "JSON aktarımı sırasında bir sorun oluştu.")

@@ -408,6 +408,9 @@ class Graph:
             degree = self.get_degree(uni_id)
             neighbors = self.get_neighbors(uni_id)
 
+            neighbor_names = [self.nodes[nid].adi for nid in neighbors if nid in self.nodes]
+            neighbors_str = ", ".join(sorted(neighbor_names))
+
             # Bu düğüme bağlı tüm kenarların ağırlık toplamı
             total_weight = 0
             for neighbor_id in neighbors:
@@ -420,7 +423,8 @@ class Graph:
                 "sehir": node.sehir,
                 "derece": degree,
                 "toplam_agirlik": round(total_weight, 2),
-                "ortalama_agirlik": round(total_weight / degree, 2) if degree > 0 else 0
+                "ortalama_agirlik": round(total_weight / degree, 2) if degree > 0 else 0,
+                "komsular": neighbors_str
             })
 
         # Önce dereceye, sonra toplam ağırlığa göre azalan sıralama
