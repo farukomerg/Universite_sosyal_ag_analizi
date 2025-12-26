@@ -1,11 +1,13 @@
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QFormLayout, QLineEdit,
                              QSpinBox, QDialogButtonBox, QScrollArea,
-                             QCheckBox, QGroupBox, QWidget, QLabel)
+                             QCheckBox, QGroupBox, QWidget, QLabel, QMessageBox)
 
 
 class AddNodeDialog(QDialog):
-    def __init__(self, existing_universities, parent=None, edit_data=None):
+    def __init__(self, existing_universities, parent=None, edit_data=None, loader=None):
         super().__init__(parent)
+        self.loader = loader  # Loader'ı sakla
+        self.edit_id = edit_data.uni_id if edit_data else None  # Düzenlenen ID'yi sakla
         self.setWindowTitle("Üniversite Ekle / Düzenle")
         self.resize(500, 600)
 
@@ -88,3 +90,29 @@ class AddNodeDialog(QDialog):
             "tr_siralama": self.inp_siralama.value()
         }
         return info, partners
+
+    def accept(self):
+        """Kaydet butonuna basıldığında tüm alanları ve sıralamayı doğrular."""
+        errors = []
+
+        # 1. Boş Alan Kontrolü
+        if not self.inp_adi.text().strip(): errors.append("Üniversite Adı doldurunuz")
+        if not self.inp_sehir.text().strip(): errors.append("Şehir doldurunuz")
+        if not self.inp_ilce.text().strip(): errors.append("İlçe doldurunuz")
+
+        # 2. Sayısal Değer Kontrolü
+        if self.inp_ogrenci.value() <= 0: errors.append("Öğrenci Sayısı 0 olamaz")
+        if self.inp_akademik.value() <= 0: errors.append("Akademik Personel 0 olamaz")
+        if self.inp_fakulte.value() <= 0: errors.append("Fakülte Sayısı 0 olamaz")
+
+        # 3. TR Sıralaması Mükerrer Kontrolü (YENİ)
+        ranking = self.inp_siralama.value()
+        if self.loader and self.loader.is_ranking_taken(ranking, self.edit_id):
+            errors.append(f"TR Sıralaması #{ranking} zaten başka bir üniversiteye atanmış!")
+
+        if errors:
+            error_msg = "Lütfen hataları düzeltiniz:\n\n- " + "\n- ".join(errors)
+            QMessageBox.warning(self, "Doğrulama Hatası", error_msg)
+            return
+
+        super().accept()

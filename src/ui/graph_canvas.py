@@ -69,16 +69,24 @@ class GraphCanvas(QWidget):
 
         graph_width = max(max_x - min_x, 100)
         graph_height = max(max_y - min_y, 100)
-        padding = 150
+
+        # Padding değerini biraz artırarak düğümlerin kenara yapışmasını engelleyelim
+        padding = 200
 
         scale_x = self.width() / (graph_width + padding)
         scale_y = self.height() / (graph_height + padding)
+
+        # ÖNEMLİ: Ölçeğin çok küçülüp her şeyi birbirine sokmasını engelle
         new_scale = min(scale_x, scale_y)
-        if new_scale < 0.6: new_scale = 0.6
+        if new_scale < 0.35: new_scale = 0.35
+        if new_scale > 1.2: new_scale = 1.0
+
         self.scale_factor = new_scale
 
         center_x = (min_x + max_x) / 2
         center_y = (min_y + max_y) / 2
+
+        # Merkeze odakla
         self.offset = QPoint(
             int(self.width() / 2 - center_x * self.scale_factor),
             int(self.height() / 2 - center_y * self.scale_factor)
@@ -210,8 +218,11 @@ class GraphCanvas(QWidget):
             painter.drawEllipse(int(node.x - self.node_radius), int(node.y - self.node_radius),
                                 self.node_radius * 2, self.node_radius * 2)
 
+            # paintEvent içindeki düğüm çizim kısmında:
             painter.setPen(QPen(Qt.black))
-            painter.drawText(int(node.x - self.node_radius), int(node.y - self.node_radius - 5), node.adi)
+            # Ölçek çok küçükse yazıyı çizme veya küçült
+            if self.scale_factor > 0.5:
+                painter.drawText(int(node.x - self.node_radius), int(node.y - self.node_radius - 5), node.adi)
 
         painter.restore()
 

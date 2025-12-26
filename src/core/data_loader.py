@@ -110,11 +110,16 @@ class DataLoader:
         # 3. Pozisyonlama (Layout) - Sadece düğüm varsa çalıştır
         try:
             # Layout hesaplama, büyük grafikler için zaman alabilir, ancak 50-1000 düğümde hızlıdır.
-            pos = nx.spring_layout(G_nx, seed=42, k=0.5, iterations=50)
+            num_nodes = len(G_nx.nodes)
+            dynamic_k = 2.0 / (num_nodes ** 0.5) if num_nodes > 0 else 0.8
 
-            scale = 300
-            center_x = 400
-            center_y = 300
+            # iterations 100-150 arası idealdir
+            pos = nx.spring_layout(G_nx, seed=42, k=dynamic_k, iterations=120)
+
+            # BURASI ÖNEMLİ: scale değerini 2000'den 1000'e çekerek alanı daraltıyoruz
+            scale = 1000
+            center_x = 1000
+            center_y = 1000
 
             for uni_id, p in pos.items():
                 if uni_id in graph.nodes:
@@ -260,6 +265,22 @@ class DataLoader:
             return None  # Teknik bir hata oluştu
         finally:
             conn.close()
+
+    def is_ranking_taken(self, ranking, exclude_id=None):
+        """Belirtilen sıralamanın başka bir üniversite tarafından kullanılıp kullanılmadığını kontrol eder."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        if exclude_id:
+            # Düzenleme modunda, kendi ID'si dışındaki kayıtları kontrol et
+            cursor.execute("SELECT 1 FROM Üniversiteler WHERE tr_siralama = ? AND uni_id != ?", (ranking, exclude_id))
+        else:
+            # Yeni ekleme modunda direkt kontrol et
+            cursor.execute("SELECT 1 FROM Üniversiteler WHERE tr_siralama = ?", (ranking,))
+
+        exists = cursor.fetchone() is not None
+        conn.close()
+        return exists
 
     # def import_from_json(self, file_path):
     #     """JSON dosyasındaki verileri DB'ye aktarır."""

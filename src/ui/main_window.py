@@ -408,7 +408,7 @@ class MainWindow(QMainWindow):
     def open_add_dialog(self):
         try:
             existing_unis = self.loader.get_university_names()
-            dialog = AddNodeDialog(existing_unis, self)
+            dialog = AddNodeDialog(existing_unis, self, loader=self.loader)
             if dialog.exec_():
                 info, partners = dialog.get_data()
                 self.save_university(info, partners)
@@ -493,8 +493,10 @@ class MainWindow(QMainWindow):
             import random
             cx = (self.canvas.width() / 2 - self.canvas.offset.x()) / self.canvas.scale_factor
             cy = (self.canvas.height() / 2 - self.canvas.offset.y()) / self.canvas.scale_factor
-            new_node.x = cx + random.randint(-60, 60)
-            new_node.y = cy + random.randint(-60, 60)
+
+            new_node.x = cx + random.randint(-250, 250)  # 1200'den 250'ye çektik
+            new_node.y = cy + random.randint(-250, 250)
+
             self.graph.add_node(new_node)
             for pid in partners:
                 if pid in self.graph.nodes:
@@ -508,7 +510,7 @@ class MainWindow(QMainWindow):
     def edit_selected_node(self):
         if not self.selected_node: return
         try:
-            dialog = AddNodeDialog([], self, edit_data=self.selected_node)
+            dialog = AddNodeDialog([], self, edit_data=self.selected_node, loader=self.loader)
             if dialog.exec_():
                 info, _ = dialog.get_data()
                 self.loader.update_university(self.selected_node.uni_id, info)
