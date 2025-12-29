@@ -274,7 +274,8 @@ class MainWindow(QMainWindow):
             ("A* (En Kısa Yol)", lambda: self.open_path_dialog("A*")),
             ("Dijkstra (En Kısa Yol)", lambda: self.open_path_dialog("Dijkstra")),
             ("Toplulukları Bul", self.show_communities),
-            ("En Etkili 5 Üniversite", self.show_top_5)
+            ("En Etkili 5 Üniversite", self.show_top_5),
+            ("Tüm Verileri Dışa Aktar", self.export_full_graph_report)  # <-- Yeni Buton
         ]
         for text, func in algo_items:
             btn = self.create_menu_button(text, "#3e96f8")
@@ -307,7 +308,8 @@ class MainWindow(QMainWindow):
             ("🏛️ Üniversite Ekle", self.open_add_dialog),
             ("Üniversite Sil", self.open_delete_node_dialog),
             ("🔗 Bağlantı Ekle", self.open_add_edge_dialog),
-            ("Bağlantı Sil", self.open_delete_edge_dialog)
+            ("Bağlantı Sil", self.open_delete_edge_dialog),
+            ("JSON Veri İçe Aktar", self.import_json_data)
         ]
         for text, func in ops_items:
             btn = self.create_menu_button(text, "#f44336")  # Silme işlemleri için kırmızı vurgu
@@ -995,4 +997,46 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Silme işlemi başarısız oldu: {str(e)}")
 
+    def export_full_graph_report(self):
+        """Grafın tamamını içeren detaylı raporu dışa aktarır."""
+        """Ekranda bulunan tüm üniversite verilerini topluluk gözetmeksizin dışa aktarır."""
+        if not self.graph.nodes:
+            QMessageBox.warning(self, "Hata", "Dışa aktarılacak veri bulunamadı.")
+            return
+
+        try:
+            from core.exporter import Exporter
+            exporter = Exporter()
+            path = exporter.export_graph_to_csv(self.graph)
+
+            QMessageBox.information(
+                self,
+                "Başarılı",
+                f"Üniversite listesi ve komşuluk verileri kaydedildi:\n\nDosya Yolu: {path}"
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Hata", f"Dışa aktarma başarısız: {str(e)}")
+
+    # MainWindow sınıfı içine eklenecek yeni metod:
+
+    def import_json_data(self):
+        from PyQt5.QtWidgets import QFileDialog
+        file_path, _ = QFileDialog.getOpenFileName(self, "JSON Seç", "", "JSON (*.json)")
+
+        if file_path:
+            # data_loader'dan gelen başarı durumu ve hata mesajını al
+            success, message = self.loader.import_from_json(file_path)
+
+            if success:
+                # Grafik yenileme işlemleri...
+                self.graph.nodes = {}
+                self.graph.edges = []
+                self.graph.adj = {}
+                self.loader.load_graph(self.graph)
+                self.canvas.fit_view()
+                self.canvas.update()
+                QMessageBox.information(self, "Başarılı", "Veriler yüklendi.")
+            else:
+                # Hata mesajını (sıralama çakışması veya eksik veri) burada göster
+                QMessageBox.critical(self, "Veri Hatası", f"İşlem durduruldu:\n{message}")
 

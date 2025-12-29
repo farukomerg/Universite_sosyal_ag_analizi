@@ -1,0 +1,25 @@
+{
+  "universiteler": [
+    {
+      "uni_id": 133,
+      "adi": "Akdeniz Üniversitesi",
+      "sehir": "Antalya",
+      "ilce": "Avcılar",
+      "kurulus_yil": 1982,
+      "ogrenci_sayisi": 55500,
+      "fakulte_sayisi": 24,
+      "akademik_sayisi": 2683,
+      "tr_siralama": 27
+    }
+  ],
+  "iliskiler": [
+    {
+      "source_id": 133,
+      "target_id": 111
+    },
+    {
+      "source_id": 133,
+      "target_id":115
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "universiteler": [
+    {
+      "adi": "hatali ayni siralama",
+      "sehir": "aaa",
+      "ilce": "aaa",
+      "kurulus_yil": 1923,
+      "ogrenci_sayisi": 1234,
+      "fakulte_sayisi": 11,
+      "akademik_sayisi": 1234,
+      "tr_siralama": 1
+    }
+  ]
+}

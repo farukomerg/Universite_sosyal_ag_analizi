@@ -306,3 +306,74 @@ class DataLoader:
     #         return False
     #     finally:
     #         conn.close()
+
+    def import_from_json(self, file_path):
+        """JSON dosyasındaki verileri doğrulayarak DB'ye aktarır."""
+        import json
+        import sqlite3
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+            if 'universiteler' in data:
+                for uni in data['universiteler']:
+                    # 1. EKSİK BİLGİ KONTROLÜ
+                    required_fields = ['adi', 'sehir', 'ilce', 'tr_siralama']
+                    if not all(uni.get(field) for field in required_fields):
+                        raise ValueError(f"Eksik alan: {uni.get('adi', 'Bilinmiyor')}")
+
+                    ranking = uni['tr_siralama']
+                    uni_id = uni.get('uni_id')
+
+                    # 2. SIRALAMA ÇAKIŞMASI KONTROLÜ (GÜNCELLENDİ)
+                    # Sadece ID farklı olup sıralama aynı olan bir kayıt var mı bakıyoruz
+                    if uni_id is not None:
+                        cursor.execute(
+                            "SELECT adi FROM Üniversiteler WHERE tr_siralama = ? AND uni_id != ?",
+                            (ranking, uni_id)
+                        )
+                    else:
+                        cursor.execute(
+                            "SELECT adi FROM Üniversiteler WHERE tr_siralama = ?",
+                            (ranking,)
+                        )
+
+                    conflict = cursor.fetchone()
+
+                    if conflict:
+                        conn.close()  # Bağlantıyı kapatıp hata fırlatıyoruz
+                        return False, f"Sıralama Çakışması: {ranking}. sıra zaten '{conflict[0]}' üniversitesine ait."
+
+                    # 3. VERİ EKLEME (INSERT OR REPLACE yerine INSERT INTO ve UPDATE kontrolü)
+                    # Eğer ID zaten varsa bilgilerini güncelle, yoksa yeni ekle
+                    cursor.execute("""
+                        INSERT INTO Üniversiteler 
+                        (uni_id, adi, sehir, ilce, kurulus_yil, ogrenci_sayisi, fakulte_sayisi, akademik_sayisi, tr_siralama)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(uni_id) DO UPDATE SET
+                        adi=excluded.adi, sehir=excluded.sehir, ilce=excluded.ilce, 
+                        kurulus_yil=excluded.kurulus_yil, ogrenci_sayisi=excluded.ogrenci_sayisi,
+                        fakulte_sayisi=excluded.fakulte_sayisi, akademik_sayisi=excluded.akademik_sayisi,
+                        tr_siralama=excluded.tr_siralama
+                    """, (
+                        uni_id, uni['adi'], uni['sehir'], uni['ilce'],
+                        uni.get('kurulus_yil', 0), uni.get('ogrenci_sayisi', 0),
+                        uni.get('fakulte_sayisi', 0), uni.get('akademik_sayisi', 0), ranking
+                    ))
+
+            # 4. İlişkileri Ekle
+            if 'iliskiler' in data:
+                for rel in data['iliskiler']:
+                    s, t = sorted((rel['source_id'], rel['target_id']))
+                    cursor.execute("INSERT OR IGNORE INTO Iliskiler (source_id, target_id) VALUES (?, ?)", (s, t))
+
+            conn.commit()
+            conn.close()
+            return True, "Başarıyla eklendi."
+        except Exception as e:
+            if 'conn' in locals(): conn.close()
+            return False, str(e)

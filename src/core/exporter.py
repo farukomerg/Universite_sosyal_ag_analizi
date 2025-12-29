@@ -115,3 +115,44 @@ class Exporter:
         except Exception as e:
             raise Exception(f"Topluluk CSV hatası: {e}")
 
+    # core/exporter.py
+
+    def export_graph_to_csv(self, graph, filename="universite_liste_raporu.csv"):
+        """Graf üzerindeki tüm düğümlerin detaylı bilgilerini dışa aktarır."""
+        output_path = os.path.join(self.output_dir, filename)
+
+        try:
+            with open(output_path, 'w', newline='', encoding='utf-8-sig') as csvfile:
+                # İstediğin sütun başlıkları
+                fieldnames = [
+                    'Üniversite ID',
+                    'Üniversite Adı',
+                    'Şehir',
+                    'İlçe',
+                    'TR Sıralaması',
+                    'Öğrenci Sayısı',
+                    'Komşular'
+                ]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')
+
+                writer.writeheader()
+
+                # Graf üzerindeki tüm düğümleri tek tek dön
+                for node in graph.nodes.values():
+                    # Komşu isimlerini çek
+                    neighbor_ids = graph.get_neighbors(node.uni_id)
+                    neighbor_names = [graph.nodes[nid].adi for nid in neighbor_ids if nid in graph.nodes]
+                    neighbors_str = ", ".join(sorted(neighbor_names))
+
+                    writer.writerow({
+                        'Üniversite ID': node.uni_id,
+                        'Üniversite Adı': node.adi,
+                        'Şehir': node.sehir,
+                        'İlçe': node.ilce,
+                        'TR Sıralaması': node.tr_siralama,
+                        'Öğrenci Sayısı': node.ogrenci_sayisi,
+                        'Komşular': neighbors_str
+                    })
+            return output_path
+        except Exception as e:
+            raise Exception(f"Rapor oluşturulurken hata: {e}")

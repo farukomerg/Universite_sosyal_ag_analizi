@@ -1,0 +1,20 @@
+﻿Üniversite ID;Üniversite Adı;Şehir;İlçe;TR Sıralaması;Öğrenci Sayısı;Komşular
+1;Hacettepe Üniversitesi;Ankara;Çankaya;1;51521;Ankara Üniversitesi, Kocaeli Üniversitesi, İstanbul Teknik Üniversitesi (İTÜ)
+3;İstanbul Teknik Üniversitesi (İTÜ);İstanbul;Sarıyer;3;38636;Hacettepe Üniversitesi, Kocaeli Üniversitesi, Koç Üniversitesi, Marmara Üniversitesi
+4;Orta Doğu Teknik Üniversitesi (ODTÜ);Ankara;Çankaya;2;23395;Gazi Üniversitesi, Sakarya Üniversitesi
+5;İstanbul Üniversitesi;İstanbul;Fatih;4;58809;Koç Üniversitesi, Marmara Üniversitesi, Sakarya Üniversitesi
+8;Kocaeli Üniversitesi;Kocaeli;İzmit;38;65000;Gazi Üniversitesi, Hacettepe Üniversitesi, Koç Üniversitesi, Sakarya Üniversitesi, İstanbul Teknik Üniversitesi (İTÜ)
+9;Sakarya Üniversitesi;Sakarya;Adapazarı;26;94000;Kocaeli Üniversitesi, Orta Doğu Teknik Üniversitesi (ODTÜ), İstanbul Üniversitesi
+15;Koç Üniversitesi;İstanbul;Sarıyer;5;9212;Kocaeli Üniversitesi, Marmara Üniversitesi, İstanbul Teknik Üniversitesi (İTÜ), İstanbul Üniversitesi
+17;Gazi Üniversitesi;Ankara;Yenimahlle;6;43000;Ankara Üniversitesi, Kocaeli Üniversitesi, Orta Doğu Teknik Üniversitesi (ODTÜ)
+18;Ankara Üniversitesi;Ankara;Beşevler;7;76124;Gazi Üniversitesi, Hacettepe Üniversitesi
+111;Ege Üniversitesi;İzmir;Bornova;10;48211;Dokuz Eylül Üniversitesi, İzmir Ekonomi Üniversitesi, İzmir Yüksek Teknoloji Ensititüsü
+112;Dokuz Eylül Üniversitesi;İzmir;Buca;17;60358;Ege Üniversitesi, İzmir Ekonomi Üniversitesi, İzmir Katip Çelebi Üniversitesi, İzmir Yüksek Teknoloji Ensititüsü
+113;İzmir Yüksek Teknoloji Ensititüsü;İzmir;Urla;22;7402;Dokuz Eylül Üniversitesi, Ege Üniversitesi, Muğla Sıtkı Koçman Üniversitesi
+114;İzmir Katip Çelebi Üniversitesi;İzmir;Çiğli;39;18600;Dokuz Eylül Üniversitesi, Muğla Sıtkı Koçman Üniversitesi, İzmir Ekonomi Üniversitesi
+115;İzmir Ekonomi Üniversitesi;İzmir;Balçova;98;10738;Dokuz Eylül Üniversitesi, Ege Üniversitesi, İzmir Katip Çelebi Üniversitesi
+125;Muğla Sıtkı Koçman Üniversitesi;Muğla;Menteşe;53;40726;İzmir Katip Çelebi Üniversitesi, İzmir Yüksek Teknoloji Ensititüsü
+126;Marmara Üniversitesi;İstanbul;Maltepe;15;72544;Koç Üniversitesi, İstanbul Teknik Üniversitesi (İTÜ), İstanbul Üniversitesi
+127;Harran Üniversitesi;Şanlıurfa;Harran;139;30000;Ağrı Doğu Beyazıt Üniversitesi, Iğdır Üniversitesi
+128;Iğdır Üniversitesi;Iğdır;Merkez;145;20000;Ağrı Doğu Beyazıt Üniversitesi, Harran Üniversitesi
+129;Ağrı Doğu Beyazıt Üniversitesi;Ağrı;Doğu Beyazıt;150;13000;Harran Üniversitesi, Iğdır Üniversitesi
