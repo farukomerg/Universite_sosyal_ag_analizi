@@ -78,8 +78,8 @@ class GraphCanvas(QWidget):
 
         # ÖNEMLİ: Ölçeğin çok küçülüp her şeyi birbirine sokmasını engelle
         new_scale = min(scale_x, scale_y)
-        if new_scale < 0.35: new_scale = 0.35
-        if new_scale > 1.2: new_scale = 1.0
+        if new_scale < 0.05: new_scale = 0.05
+        if new_scale > 2.0: new_scale = 2.0
 
         self.scale_factor = new_scale
 

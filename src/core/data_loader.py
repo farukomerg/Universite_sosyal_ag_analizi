@@ -108,21 +108,27 @@ class DataLoader:
             return graph
 
         # 3. Pozisyonlama (Layout) - Sadece düğüm varsa çalıştır
-        try:
-            # ESKİ HALİ: k=0.45, scale=500 idi.
-            # YENİ HALİ: k=0.85 (Birbirlerini biraz daha itsinler)
-            #            scale=1200 (Alan biraz genişlesin ki çizgiler uzasın)
-            pos = nx.spring_layout(G_nx, seed=42, k=0.85, iterations=50, scale=650)
+        if len(G_nx.nodes) > 0:
+            try:
+                # weight=None  -> ÇOK ÖNEMLİ: Binlerce puanlık çekim gücünü iptal eder.
+                #                 Sadece "bağ var mı yok mu" ona bakar.
+                # k=0.7        -> İtme gücü. 0.7 düğümleri birbirinden net ayırır.
+                # scale=1000   -> Harita genişliği. Yazıların okunması için yeterli alan.
+                # iterations=100 -> Düğümlerin yerleşmesi için yeterli süre.
 
-            # Merkezi de ekranın ortasına denk gelecek şekilde güncelleyelim
-            center_x, center_y = 1000, 700
+                pos = nx.spring_layout(G_nx, seed=42, k=0.7, iterations=100, scale=1000, weight=None)
 
-            for nid, p in pos.items():
-                if nid in graph.nodes:
-                    graph.nodes[nid].x = int(center_x + p[0])
-                    graph.nodes[nid].y = int(center_y + p[1])
-        except:
-            pass
+                # Haritayı tam merkeze oturtuyoruz
+                center_x, center_y = 1000, 800
+
+                for nid, p in pos.items():
+                    if nid in graph.nodes:
+                        graph.nodes[nid].x = int(center_x + p[0])
+                        graph.nodes[nid].y = int(center_y + p[1])
+
+            except Exception as e:
+                print(f"Layout Hatası: {e}")
+
 
     def get_university_names(self):
         conn = sqlite3.connect(self.db_path)

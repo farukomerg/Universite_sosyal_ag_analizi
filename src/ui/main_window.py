@@ -177,7 +177,8 @@ class MainWindow(QMainWindow):
         # 5. ALT PANEL
         self.create_status_bar()
 
-        QTimer.singleShot(200, self.canvas.fit_view)
+        QTimer.singleShot(100, self.canvas.fit_view)
+
 
     def apply_modern_theme(self):
         QApplication.setStyle("Fusion")
