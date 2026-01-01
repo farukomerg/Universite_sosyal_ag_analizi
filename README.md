@@ -246,6 +246,24 @@ Uygulama kullanıcı dostu ve etkileşimli bir arayüze sahiptir:
 - Algoritmalar makul sürelerde çalışmakta ve sonuçlar tablo halinde raporlanmaktadır.
 - Hatalı veri girişleri (aynı sıralamaya sahip üniversitenin tekrar eklenmesi, eksik bilgi girimi, self-loop vb.) sistem tarafından engellenmiştir.
 
+
+### 7.1 Küçük Ölçekli Graf Testi (10–20 Düğüm)
+
+Bu test senaryosunda küçük ölçekli bir graf üzerinde temel graf algoritmaları çalıştırılmıştır.  
+Algoritmaların çalışma süreleri ölçülmüş ve sonuçlar aşağıdaki tabloda gösterilmiştir.
+
+<img width="718" height="680" alt="Screenshot 2026-01-01 231456" src="https://github.com/user-attachments/assets/cf7f7ed9-7a96-429c-982f-76a89bfb2007" />
+
+
+Küçük Ölçekli Graph
+
+| Algoritma Adı        | Sonuç Görseli | Çalışma Süresi (sn) |
+|---------------------|---------------|---------------------|
+| Welsh–Powell        |       <img width="752" height="746" alt="Screenshot 2026-01-01 231524" src="https://github.com/user-attachments/assets/ef75177a-423a-4bd9-8c21-2909fe659c69" /> | 0.000084            |
+| A*                  |       <img width="756" height="738" alt="Screenshot 2026-01-01 231551" src="https://github.com/user-attachments/assets/0079daee-b7fa-4e8f-bee8-d23f4bae6476" />  | 0.000290            |
+| Dijkstra            |         <img width="765" height="741" alt="Screenshot 2026-01-01 231611" src="https://github.com/user-attachments/assets/3491316b-b942-4076-a691-834523f481f6" />  | 0.000205            |
+| BFS                 |        <img width="720" height="727" alt="Screenshot 2026-01-01 231906" src="https://github.com/user-attachments/assets/41d1fbae-c000-4ffc-bcf4-88c733a4171f" />  | 0.000151            |
+| DFS                 |        <img width="728" height="725" alt="Screenshot 2026-01-01 231922" src="https://github.com/user-attachments/assets/b146da24-be56-47eb-9d87-8489426f715d" />  | 0.000046            |
 ---
 
 ## 8.  Kullanılan Teknolojiler
