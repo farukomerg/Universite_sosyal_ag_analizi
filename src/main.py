@@ -8,9 +8,6 @@ from core.graph import Graph
 from core.data_loader import DataLoader
 from ui.main_window import MainWindow
 
-# Yeni importlar:
-# from ui.coloring_dialog import ColoringDialog
-# from core.exporter import Exporter
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

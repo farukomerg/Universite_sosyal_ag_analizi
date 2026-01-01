@@ -3,10 +3,7 @@
 import csv
 import os
 from .graph import Graph
-# YENİ: Renk haritasını içe aktarın (Eğer ana dosyanızda ui/graph_canvas.py yolunu biliyorsa)
-# NOT: Bu örnekte, dışa aktarıcının UI'dan bu bilgiyi alması için doğrudan import yapıyoruz.
-# Eğer bu bir döngüsel bağımlılık yaratırsa, bu bilgiyi graph objesine parametre olarak geçmek daha iyi bir çözümdür.
-# Ancak mevcut dosya yapınızda en basit çözüm budur.
+
 
 
 class Exporter:
@@ -17,14 +14,13 @@ class Exporter:
     def export_coloring_to_csv(self, graph: Graph, coloring: dict, filename="welsh_powell_coloring.csv"):
         output_path = os.path.join(self.output_dir, filename)
 
-        # Renk isimlerini buraya aldık (UI'dan bağımsız çalışması için)
+        # Renk isimlerini burada
         color_map = {
             1: "Kırmızı", 2: "Yeşil", 3: "Mavi", 4: "Pembe", 5: "Altın Sarısı",
             6: "Turkuaz", 7: "Mor", 8: "Turuncu", 9: "Gri", 10: "Açık Yeşil"
         }
 
         try:
-            # delimiter=';' Türkçe Excel için önemlidir
             with open(output_path, 'w', newline='', encoding='utf-8-sig') as csvfile:
                 fieldnames = ['ID', 'Üniversite Adı', 'Şehir', 'Renk ID', 'Renk Adı', 'Komşular']
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')

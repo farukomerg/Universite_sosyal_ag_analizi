@@ -4,18 +4,16 @@ import sys
 import os
 import time
 
-# Proje ana dizinini yola ekle (Modüllerin bulunması için kritik)
+# Proje ana dizinini
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout,
                              QHBoxLayout, QFrame, QPushButton, QMessageBox,
-                             QAction, QToolBar, QDockWidget, QTabWidget,
-                             QTextEdit, QFormLayout, QStyle, QApplication,
-                             QStackedWidget, QGraphicsDropShadowEffect, QInputDialog,
-                             QComboBox, QSizePolicy, QSpacerItem, QGroupBox,
+                              QDockWidget, QApplication,
+                             QGraphicsDropShadowEffect, QInputDialog,
                              QTableWidget, QTableWidgetItem, QHeaderView, QDialog, QScrollArea)
-from PyQt5.QtCore import Qt, QSize, QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty
-from PyQt5.QtGui import QIcon, QFont, QPalette, QColor, QFontDatabase, QLinearGradient, QPainter
+from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty
+from PyQt5.QtGui import  QFont, QPalette, QColor, QLinearGradient, QPainter
 
 # --- EKSİK OLAN IMPORTLAR BURADA ---
 # Bu satırları eklediğinde kırmızı çizgiler kaybolacak:
@@ -125,7 +123,7 @@ class CardWidget(QFrame):
         layout.addLayout(self.content_layout)
         self.setLayout(layout)
 
-    # 👇 DIŞARIDAN GÜVENLİ BAŞLIK DEĞİŞTİRME
+    # DIŞARIDAN GÜVENLİ BAŞLIK DEĞİŞTİRME
     def setTitle(self, text):
         if self.title_label:
             self.title_label.setText(text)
@@ -893,8 +891,7 @@ class MainWindow(QMainWindow):
         # 2. Çizilmiş yolları temizle (Kırmızılıklar gider)
         self.canvas.highlighted_path = []
 
-        # 3. Renklendirmeyi temizle (İstersen bunu yorum satırı yapabilirsin,
-        # ama yeni bir işlem yaparken eskileri silmek daha temizdir)
+        # 3. Renklendirmeyi temizle
         # self.canvas.coloring_result = {}
         # self.coloring_result = {}
 
@@ -926,7 +923,7 @@ class MainWindow(QMainWindow):
         self.detail_labels["rank"].setText(f"{edge.weight:.4f}")
 
         # --- BUTON YÖNLENDİRMELERİ ---
-        self.btn_edit.setVisible(False)  # Bağlantıda düzenle butonu gözükmesin
+        self.btn_edit.setVisible(False)
         self.btn_delete.setEnabled(True)
         self.btn_delete.setText("Bağlantıyı Sil")
 

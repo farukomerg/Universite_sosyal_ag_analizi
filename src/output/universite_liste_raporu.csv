@@ -16,5 +16,7 @@
 125;Muğla Sıtkı Koçman Üniversitesi;Muğla;Menteşe;53;40726;İzmir Katip Çelebi Üniversitesi, İzmir Yüksek Teknoloji Ensititüsü
 126;Marmara Üniversitesi;İstanbul;Maltepe;15;72544;Koç Üniversitesi, İstanbul Teknik Üniversitesi (İTÜ), İstanbul Üniversitesi
 127;Harran Üniversitesi;Şanlıurfa;Harran;139;30000;Ağrı Doğu Beyazıt Üniversitesi, Iğdır Üniversitesi
-128;Iğdır Üniversitesi;Iğdır;Merkez;145;20000;Ağrı Doğu Beyazıt Üniversitesi, Harran Üniversitesi
-129;Ağrı Doğu Beyazıt Üniversitesi;Ağrı;Doğu Beyazıt;150;13000;Harran Üniversitesi, Iğdır Üniversitesi
+128;Iğdır Üniversitesi;Iğdır;Merkez;145;20000;Ağrı Doğu Beyazıt Üniversitesi, Deneme universite, Harran Üniversitesi
+129;Ağrı Doğu Beyazıt Üniversitesi;Ağrı;Doğu Beyazıt;150;13000;Deneme universite, Deneme1 universite, Harran Üniversitesi, Iğdır Üniversitesi
+145;Deneme universite;Deneme;dene;195;55500;Ağrı Doğu Beyazıt Üniversitesi, Deneme1 universite, Iğdır Üniversitesi
+146;Deneme1 universite;Denek;dene;201;62500;Ağrı Doğu Beyazıt Üniversitesi, Deneme universite

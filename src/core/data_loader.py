@@ -213,7 +213,6 @@ class DataLoader:
         conn = sqlite3.connect(self.db_path)
 
         # 2. Tablo adınız 'Iliskiler', sütunlarınız 'source_id' ve 'target_id'
-        # add_relation içinde sorted() kullandığınız için burada da sıralıyoruz
         s, t = sorted((id1, id2))
 
         query = "DELETE FROM Iliskiler WHERE source_id = ? AND target_id = ?"
@@ -439,8 +438,6 @@ class DataLoader:
                                    (uni_id, row['adi'], row['sehir'], row['ilce'], kurulus, ogrenci, fakulte, akademik,
                                     ranking))
 
-                    # Eğer ID otomatik verildiyse, son eklenen ID'yi bulmalıyız (ilişkiler için gerekli değil ama iyi pratik)
-                    # Ancak CSV ile ilişki kuracaksanız, CSV içinde ID'leri elle vermeniz EN SAĞLIKLISIDIR.
 
                     # İlişkileri listeye at (Sonra işleyeceğiz)
                     # Sütun adı: 'iliskili_idleri' -> Format: "1|5|12" (Dik çizgi ile ayrılmış ID'ler)
@@ -462,7 +459,6 @@ class DataLoader:
                 if u != v:
                     # İki yönlü ekle (Source -> Target ve Target -> Source çakışmasını önlemek için IGNORE)
                     # ID'leri sıralayıp eklersek çift kaydı önleriz ama Graph yapısı çift yönlü olabilir.
-                    # Basitlik için direkt ekliyoruz:
                     cursor.execute("INSERT OR IGNORE INTO Iliskiler (source_id, target_id) VALUES (?, ?)", (u, v))
                     count_edges += 1
 
