@@ -1,8 +1,10 @@
 # Üniversite Sosyal Ağ Analizi
 
-Ders: Yazılım Geliştirme Laboratuvarı
+**Ders:** Yazılım Geliştirme Laboratuvarı-I
 
-Bölüm: Bilişim Sistemleri Mühendisliği
+**Bölüm:** Bilişim Sistemleri Mühendisliği
+
+**Tarih:** 02.01.2026
 
 
 
@@ -54,54 +56,54 @@ Proje, veri dosyaları (`csv`, `json`, `data`) ve kaynak kodların (`src`) ayrı
 
 ```mermaid
 graph TD
-    root[📂 Universite_sosyal_ag_analizi]
+    root[ Universite_sosyal_ag_analizi]
 
-    root --> csv_dir[📂 csv_verileri]
-    root --> data_dir[📂 data]
-    root --> json_dir[📂 json_verileri]
-    root --> src_dir[📂 src]
+    root --> csv_dir[ csv_verileri]
+    root --> data_dir[ data]
+    root --> json_dir[  son_verileri]
+    root --> src_dir[ src]
     
-    root --> gitattr[📄 .gitattributes]
-    root --> gitignore[📄 .gitignore]
-    root --> readme[📄 README.md]
+    root --> gitattr[ .gitattributes]
+    root --> gitignore[ .gitignore]
+    root --> readme[ README.md]
 
-    csv_dir --> csv1[📄 Deneme_uni1.csv]
-    data_dir --> db_main[🗄️ universite.db]
+    csv_dir --> csv1[ Deneme_uni1.csv]
+    data_dir --> db_main[ universite.db]
 
-    json_dir --> json1[📄 akdeniz_iki_edge.json]
-    json_dir --> json2[📄 ayni_siralama.json]
-    json_dir --> json3[📄 cerrahpasa.json]
-    json_dir --> json4[📄 deneme_uni.json]
+    json_dir --> json1[ akdeniz_iki_edge.json]
+    json_dir --> json2[ ayni_siralama.json]
+    json_dir --> json3[ cerrahpasa.json]
+    json_dir --> json4[ deneme_uni.json]
 
-    src_dir --> main_py[🐍 main.py]
-    src_dir --> db_ctrl[🐍 db_control.py]
+    src_dir --> main_py[ main.py]
+    src_dir --> db_ctrl[ db_control.py]
 
-    src_dir --> core_dir[📂 core]
-    src_dir --> ui_dir[📂 ui]
-    src_dir --> out_dir[📂 output]
-    src_dir --> rep_dir[📂 reports]
+    src_dir --> core_dir[ core]
+    src_dir --> ui_dir[ ui]
+    src_dir --> out_dir[ output]
+    src_dir --> rep_dir[ reports]
 
-    core_dir --> algos[🐍 algorithms.py]
-    core_dir --> loader[🐍 data_loader.py]
-    core_dir --> edge[🐍 edge.py]
-    core_dir --> exporter[🐍 exporter.py]
-    core_dir --> graph_cls[🐍 graph.py]
-    core_dir --> interf[🐍 interfaces.py]
-    core_dir --> node[🐍 node.py]
+    core_dir --> algos[ algorithms.py]
+    core_dir --> loader[ data_loader.py]
+    core_dir --> edge[ edge.py]
+    core_dir --> exporter[ exporter.py]
+    core_dir --> graph_cls[ graph.py]
+    core_dir --> interf[ interfaces.py]
+    core_dir --> node[ node.py]
 
-    ui_dir --> add_edge[🐍 add_edge_dialog.py]
-    ui_dir --> add_node[🐍 add_node_dialog.py]
-    ui_dir --> color_dlg[🐍 coloring_dialog.py]
-    ui_dir --> canvas[🐍 graph_canvas.py]
-    ui_dir --> main_win[🐍 main_window.py]
-    ui_dir --> path_dlg[🐍 path_dialog.py]
+    ui_dir --> add_edge[ add_edge_dialog.py]
+    ui_dir --> add_node[ add_node_dialog.py]
+    ui_dir --> color_dlg[ coloring_dialog.py]
+    ui_dir --> canvas[ graph_canvas.py]
+    ui_dir --> main_win[ main_window.py]
+    ui_dir --> path_dlg[ path_dialog.py]
 
-    out_dir --> out1[📊 etki_analizi.csv]
-    out_dir --> out2[📊 topluluk_analizi.csv]
-    out_dir --> out3[📊 universite_liste_raporu.csv]
-    out_dir --> out4[📊 welsh_powell_coloring.csv]
+    out_dir --> out1[ etki_analizi.csv]
+    out_dir --> out2[ topluluk_analizi.csv]
+    out_dir --> out3[ universite_liste_raporu.csv]
+    out_dir --> out4[ welsh_powell_coloring.csv]
 
-    rep_dir --> rep1[📊 merkezilik_raporu_...csv]
+    rep_dir --> rep1[ merkezilik_raporu_...csv]
 ```
 
 ## 4. Veri Saklama ve Yükleme
@@ -154,6 +156,12 @@ BFS, grafı katman katman keşfeden bir genişlik öncelikli arama algoritmasıd
 
 **Çalışma Mantığı:** Başlangıç düğümü kuyruğa eklenir. Kuyruk boşalana kadar; kuyruğun başındaki düğüm çıkarılır, ziyaret edildi olarak işaretlenir ve bu düğümün henüz ziyaret edilmemiş tüm komşuları kuyruğa eklenir.
 
+**Literatür:** İlk olarak 1945'te Konrad Zuse tarafından (yayımlanmasa da) keşfedilmiş, 1959'da Edward F. Moore tarafından labirentlerde en kısa yolu bulmak için yeniden formüle edilmiştir.
+
+**Zaman Karmaşıklığı:** $O(V + E)$. Burada $V$ üniversite sayısını, $E$ ise bağlantı sayısını temsil eder. Her düğüm ve her kenar en fazla bir kez işlenir.
+
+**Alan Karmaşıklığı:** $O(V)$. En kötü durumda tüm düğümlerin kuyrukta beklemesi gerekebilir.
+
 ```mermaid
 graph TD
     B1[Başla] --> B2[Kuyruk FIFO ve Ziyaret Edilenler Kümesi Oluştur]
@@ -175,7 +183,17 @@ DFS, graf üzerinde **bir daldan mümkün olan en derin noktaya kadar ilerleyen*
 
 - **Yığın (Stack – LIFO):** DFS algoritması, Son Giren İlk Çıkar (Last-In, First-Out) prensibiyle çalışan bir yığın yapısı kullanır. En son eklenen düğüm, bir sonraki adımda ilk ziyaret edilen düğüm olur.
 
+
 **Çalışma Mantığı:** Başlangıç düğümü yığına eklenir. Yığın boşalana kadar; en üstteki düğüm yığından çıkarılır. Eğer düğüm daha önce ziyaret edilmemişse ziyaret listesine eklenir ve komşuları yığına itilir. Bu yapı, algoritmanın grafın derinliklerine hızlı bir şekilde inmesini sağlar.
+
+**Literatür:** 19. yüzyılda Fransız matematikçi Charles Pierre Trémaux tarafından labirent çözme stratejisi olarak geliştirilmiştir.
+
+
+**Zaman Karmaşıklığı:** $O(V + E)$. BFS gibi tüm grafı taradığı için karmaşıklığı aynıdır, ancak tarama sırası farklıdır.
+
+**Alan Karmaşıklığı:** $O(V)$. Yinelemeli yapıda çağrı yığını (recursion stack) grafın derinliği kadar yer kaplar.
+
+
 
 ```mermaid
 graph TD
@@ -203,6 +221,14 @@ göz önünde bulundurularak dinamik olarak hesaplanmaktadır.
 
 **Çalışma Mantığı:** Algoritma başlangıçta tüm düğümlere olan mesafeyi sonsuz kabul eder. Bir **Öncelik Kuyruğu (Priority Queue)** kullanılarak her adımda mevcut en düşük maliyetli düğüm seçilir. Seçilen düğüm üzerinden komşu düğümlerin mesafeleri güncellenir.
 
+**Literatür:** 1956 yılında Edsger W. Dijkstra tarafından tasarlanmıştır. Graf teorisinde "negatif olmayan" kenar ağırlıkları için en kısa yolu bulan temel algoritmadır.
+
+
+**Zaman Karmaşıklığı:** $O((E + V) \log V)$. Öncelik kuyruğu kullanımı sayesinde her kenar güncellemesi ve düğüm seçimi logaritmik sürede gerçekleşir.
+
+**Alan Karmaşıklığı:** $O(V)$. Mesafeleri ve öncelik kuyruğunu tutmak için düğüm sayısı kadar alan gerekir.
+
+
 
 ```mermaid
 graph TD
@@ -225,6 +251,14 @@ A* algoritması, Dijkstra algoritmasının **hedef odaklı** ve daha verimli bir
 
 **Sezgisel (Heuristic) Yaklaşım:** Bu projede sezgisel değer olarak, iki düğümün canvas üzerindeki koordinatları arasındaki **Öklid Mesafesi** kullanılmıştır. Bu sayede algoritma, hedefe fiziksel olarak daha yakın düğümlere öncelik vererek arama alanını daraltır ve çoğu durumda Dijkstra algoritmasına kıyasla daha hızlı sonuç üretir.
 
+**Literatür:** 1968 yılında Peter Hart, Nils Nilsson ve Bertram Raphael tarafından geliştirilmiştir. Dijkstra'nın bir sezgisel (heuristic) fonksiyon ile optimize edilmiş halidir.
+
+
+**Zaman Karmaşıklığı:** En kötü durumda $O((E + V) \log V)$ olsa da, iyi bir sezgisel fonksiyon ile Dijkstra'dan çok daha az düğüm tarayarak sonuca ulaşır.
+
+**Alan Karmaşıklığı:** $O(V)$. Açık ve kapalı düğüm listelerini saklamak için kullanılır.
+
+
 ```mermaid
 graph TD
     Start((Başla)) --> Init[f_score = g_score + heuristic]
@@ -243,6 +277,14 @@ graph TD
 Welsh–Powell algoritması, grafı **komşu düğümler farklı renklerde olacak şekilde**, mümkün olan **en az sayıda renk** kullanarak boyamayı amaçlayan bir graf renklendirme algoritmasıdır.
 
 **Çalışma Mantığı:** Öncelikle düğümler, bağlantı sayılarına (derecelerine) göre **azalan sırada** sıralanır. En yüksek dereceli düğümden başlanarak, komşularının o ana kadar kullanmadığı **en küçük renk numarası** atanır. Bu işlem tüm düğümler renklendirilene kadar devam eder.
+
+**Literatür:** 1967'de Dominic Welsh ve Martin Powell tarafından yayımlanmıştır. "Açgözlü" (Greedy) renklendirme yaklaşımının en bilinen yöntemlerinden biridir.
+
+
+**Zaman Karmaşıklığı:** $O(V^2 + V \cdot E)$. Düğümlerin sıralanması $O(V \log V)$ sürse de, her düğüm için tüm komşuların renk kontrolü yapılması yoğun ağlarda bu seviyeye çıkabilir.
+
+**Alan Karmaşıklığı:** $O(V + E)$. Komşuluk listesi ve renklendirme sonuçlarını tutmak için kullanılır.
+
 
 Bu algoritma sayesinde graf içerisindeki ayrık topluluklar görsel olarak kolayca ayırt edilebilmektedir.
 ```mermaid
@@ -283,7 +325,8 @@ Uygulama kullanıcı dostu ve etkileşimli bir arayüze sahiptir:
   - CSV / JSON veri içe ve dışa aktarma bölümü  
 
 - **Orta Panel:**  
-  - Grafın canvas üzerinde görsel gösterimi  
+  - Grafın canvas üzerinde görsel gösterimi
+  - Çalışan algoritmaların sonuçlarının graph ve bilgi kutucukları (tablolar, çalışma süreleri) üzerinde gösterimi 
   - Düğümler üniversiteleri, kenarlar akademik iş birliklerini temsil eder  
   - Kenarların üzerinde iki üniversite arasındaki ağırlık değeri gösterilir  
 
@@ -333,10 +376,8 @@ Orta Ölçekli Graph
 
 | Algoritma Adı        | Sonuç Görseli | Çalışma Süresi (sn) |
 |---------------------|---------------|---------------------|
-| Welsh–Powell        |       <img width="974" height="885" alt="Ekran görüntüsü 2026-01-02 115015" src="https://github.com/user-attachments/assets/ee1df0cb-8f87-4140-8e2f-1eaa07bcac35" />
-| 0.000220            |
-| A*                  |       <img width="971" height="878" alt="Ekran görüntüsü 2026-01-02 115436" src="https://github.com/user-attachments/assets/3bd816ce-1f26-4a2b-9e35-8738ed9860a0" />
-| 0.000093            |
+| Welsh–Powell        |       <img width="974" height="885" alt="Ekran görüntüsü 2026-01-02 115015" src="https://github.com/user-attachments/assets/ee1df0cb-8f87-4140-8e2f-1eaa07bcac35" /> | 0.000220            |
+| A*                  |       <img width="971" height="878" alt="Ekran görüntüsü 2026-01-02 115436" src="https://github.com/user-attachments/assets/3bd816ce-1f26-4a2b-9e35-8738ed9860a0" /> | 0.000093            |
 | Dijkstra            |        <img width="971" height="878" alt="Ekran görüntüsü 2026-01-02 115436" src="https://github.com/user-attachments/assets/3bd816ce-1f26-4a2b-9e35-8738ed9860a0" />   | 0.000137            |
 | BFS                 |        <img width="1003" height="880" alt="Ekran görüntüsü 2026-01-02 115825" src="https://github.com/user-attachments/assets/0c1c7375-2580-4441-be93-9b380e3656f7" />   | 0.000093            |
 | DFS                 |       <img width="1003" height="880" alt="Ekran görüntüsü 2026-01-02 115825" src="https://github.com/user-attachments/assets/0c1c7375-2580-4441-be93-9b380e3656f7" />    | 0.000129            |
@@ -362,6 +403,14 @@ Orta Ölçekli Graph
 
 Bu proje kapsamında, üniversiteler arası akademik ilişkiler graf veri yapısı üzerinde başarıyla modellenmiş ve analiz edilmiştir. Dinamik ağırlık hesaplamaları sayesinde, özellik bakımından birbirine daha yakın üniversiteler görsel olarak daha ilişkili şekilde gösterilebilmekte, kullanıcılar bu yakınlıkları grafik üzerinde doğrudan gözlemleyebilmektedir. Ayrıca uygulanan graf algoritmaları sayesinde, üniversitelerin birbirleriyle olan ilişkileri farklı senaryolar altında test edilebilmekte ve ağ yapısı detaylı olarak analiz edilebilmektedir.
 
+**Proje geliştirme sürecinde bazı teknik ve veri odaklı zorluklarla karşılaşılmıştır:**
+
+- **Kullanıcı Arayüzü Tasarımı:** Çok sayıda düğüm (üniversite) olduğunda grafın görselleştirilmesi sırasında etkileşimli özelliklerin (zoom, edge tıklama, node tıklama) eklenmesi karmaşık olmuştur. Kullanıcı deneyiminin bozulmaması için performans optimizasyonu gerekmiştir.
+
+- **Veri Bulumu:** Üniversitelerin güncel öğrenci sayıları, kuruluş yılları ve akademik sıralamaları gibi verilerin doğrulanmış kaynaklardan toplanması ve bu verilerin SQLite veritabanına aktarılma süreci oldukça zaman alıcı olmuştur.
+
+- **Dinamik Kenar Ağırlıkları:** Farklı metriklerin (sıralama, öğrenci sayısı vb.) tek bir ağırlık formülünde birleştirilmesi sırasında, baskın olan değişkenlerin (örneğin öğrenci sayısı) diğer verileri gölgelemesini engellemek için normalizasyon çalışmaları yapılması gerekmiştir.
+
 ---
 
 ## 11. Olası Geliştirmeler
@@ -375,22 +424,24 @@ Bu proje kapsamında, üniversiteler arası akademik ilişkiler graf veri yapıs
 ---
 ## 12. Kaynakça
 
-https://visjs.org/
+- https://www.global-yurtdisiegitim.com/blog/turkiyenin-en-iyi-universiteleri
 
-https://visjs.github.io/vis-network/examples/
+- https://visjs.org/
 
-https://pythonhumanities.com/
+- https://visjs.github.io/vis-network/examples/
 
-https://www.pythonguis.com/tutorials/pyqt-basic-widgets/
+- https://pythonhumanities.com/
 
-https://www.pythonguis.com/tutorials/pyqt-dialogs/
+- https://www.pythonguis.com/tutorials/pyqt-basic-widgets/
 
-https://medium.com/@enesaksoy1732/pyqt5-kullanarak-basit-bir-web-taray%C4%B1c%C4%B1s%C4%B1-olu%C5%9Fturma-540752f826c3
+- https://www.pythonguis.com/tutorials/pyqt-dialogs/
 
-https://medium.com/cits-tech/python-networkx-ile-graf-teorisi-931699540e73
+- https://medium.com/@enesaksoy1732/pyqt5-kullanarak-basit-bir-web-taray%C4%B1c%C4%B1s%C4%B1-olu%C5%9Fturma-540752f826c3
 
-https://www.geeksforgeeks.org/dsa/dijkstras-shortest-path-algorithm-greedy-algo-7/
+- https://medium.com/cits-tech/python-networkx-ile-graf-teorisi-931699540e73
 
-https://www.freecodecamp.org/news/graph-algorithms-in-python-bfs-dfs-and-beyond/
+- https://www.geeksforgeeks.org/dsa/dijkstras-shortest-path-algorithm-greedy-algo-7/
 
-https://graphstream-project.org/doc/Algorithms/Welsh-Powell/
+- https://www.freecodecamp.org/news/graph-algorithms-in-python-bfs-dfs-and-beyond/
+
+- https://graphstream-project.org/doc/Algorithms/Welsh-Powell/
