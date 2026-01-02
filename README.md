@@ -85,7 +85,7 @@ graph TD
     core_dir --> loader[🐍 data_loader.py]
     core_dir --> edge[🐍 edge.py]
     core_dir --> exporter[🐍 exporter.py]
-    core_dir --> graph[🐍 graph.py]
+    core_dir --> graph_cls[🐍 graph.py]
     core_dir --> interf[🐍 interfaces.py]
     core_dir --> node[🐍 node.py]
 
