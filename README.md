@@ -12,7 +12,7 @@ Grup Üyeleri:
 * 241307114 Ömer Faruk Güler (GitHub: @farukomerg)
 
 
-* 131307064 Gülnihal Eruslu (GitHub: @gulni-hal)
+* 231307064 Gülnihal Eruslu (GitHub: @gulni-hal)
 
 ---
 
@@ -49,7 +49,62 @@ Projede nesne yönelimli programlama (OOP) prensipleri esas alınmış, soyutlam
 
 ---
 
-## 3. Veri Saklama ve Yükleme
+## 3. Proje Dizin Yapısı
+Proje, veri dosyaları (`csv`, `json`, `data`) ve kaynak kodların (`src`) ayrıştırıldığı modüler bir hiyerarşiye sahiptir.
+
+```mermaid
+graph TD
+    root[📂 Universite_sosyal_ag_analizi]
+
+    root --> csv_dir[📂 csv_verileri]
+    root --> data_dir[📂 data]
+    root --> json_dir[📂 json_verileri]
+    root --> src_dir[📂 src]
+    
+    root --> gitattr[📄 .gitattributes]
+    root --> gitignore[📄 .gitignore]
+    root --> readme[📄 README.md]
+
+    csv_dir --> csv1[📄 Deneme_uni1.csv]
+    data_dir --> db_main[🗄️ universite.db]
+
+    json_dir --> json1[📄 akdeniz_iki_edge.json]
+    json_dir --> json2[📄 ayni_siralama.json]
+    json_dir --> json3[📄 cerrahpasa.json]
+    json_dir --> json4[📄 deneme_uni.json]
+
+    src_dir --> main_py[🐍 main.py]
+    src_dir --> db_ctrl[🐍 db_control.py]
+
+    src_dir --> core_dir[📂 core]
+    src_dir --> ui_dir[📂 ui]
+    src_dir --> out_dir[📂 output]
+    src_dir --> rep_dir[📂 reports]
+
+    core_dir --> algos[🐍 algorithms.py]
+    core_dir --> loader[🐍 data_loader.py]
+    core_dir --> edge[🐍 edge.py]
+    core_dir --> exporter[🐍 exporter.py]
+    core_dir --> graph[🐍 graph.py]
+    core_dir --> interf[🐍 interfaces.py]
+    core_dir --> node[🐍 node.py]
+
+    ui_dir --> add_edge[🐍 add_edge_dialog.py]
+    ui_dir --> add_node[🐍 add_node_dialog.py]
+    ui_dir --> color_dlg[🐍 coloring_dialog.py]
+    ui_dir --> canvas[🐍 graph_canvas.py]
+    ui_dir --> main_win[🐍 main_window.py]
+    ui_dir --> path_dlg[🐍 path_dialog.py]
+
+    out_dir --> out1[📊 etki_analizi.csv]
+    out_dir --> out2[📊 topluluk_analizi.csv]
+    out_dir --> out3[📊 universite_liste_raporu.csv]
+    out_dir --> out4[📊 welsh_powell_coloring.csv]
+
+    rep_dir --> rep1[📊 merkezilik_raporu_...csv]
+```
+
+## 4. Veri Saklama ve Yükleme
 
 Uygulama, verilerin kalıcı olarak saklanabilmesi ve tekrar yüklenebilmesi için **JSON** ve **CSV** formatlarını desteklemektedir.
 
@@ -63,7 +118,7 @@ Veri dışa aktarımı işlemlerinde ise CSV formatı kullanılarak hem genel gr
 
 ---
 
-## 4. Dinamik Ağırlık Hesaplama
+## 5. Dinamik Ağırlık Hesaplama
 
 Üniversiteler arasındaki akademik iş birliği kenarlarının ağırlıkları **dinamik olarak** hesaplanmaktadır. Bu hesaplama üniversitelerin sayısal özellikleri dikkate alınarak yapılır.
 
@@ -85,10 +140,10 @@ Hesaplanan bu ağırlık değerleri, tüm algoritmalarda **kenar maliyeti** olar
 
 ---
 
-## 5. Kullanılan Algoritmalar
+## 6. Kullanılan Algoritmalar
 Bu bölümde uygulama kapsamında kullanılan graf algoritmalarının çalışma mantıkları, kullanılan veri yapıları ve sistem içerisindeki işleyişleri açıklanmaktadır.
 
-### 5.1. BFS (Breadth-First Search)
+### 6.1. BFS (Breadth-First Search)
 BFS, grafı katman katman keşfeden bir genişlik öncelikli arama algoritmasıdır. Başlangıç düğümüne en yakın düğümlerden başlayarak, ağ içerisindeki erişilebilir tüm düğümleri sırasıyla ziyaret eder.
 
 **Kullanılan Veri Yapıları:**
@@ -112,7 +167,7 @@ graph TD
     B4 -- Evet --> B9[Ziyaret Sırasını Döndür ve Bitir]
 ```
 
-### 5.2. DFS (Depth-First Search)
+### 6.2. DFS (Depth-First Search)
 
 DFS, graf üzerinde **bir daldan mümkün olan en derin noktaya kadar ilerleyen** bir **derinlik öncelikli arama algoritmasıdır**.
 
@@ -135,7 +190,7 @@ graph TD
     D8 --> D4
     D4 -- Evet --> D9[Ziyaret Sırasını Döndür ve Bitir]
 ```
-### 5.3. Dijkstra Algoritması
+### 6.3. Dijkstra Algoritması
 
 Dijkstra algoritması, bir başlangıç düğümünden diğer tüm düğümlere olan **en kısa yolu (en düşük toplam maliyetli yolu)** bulan bir algoritmadır.
 
@@ -162,7 +217,7 @@ graph TD
     D -- Evet --> I[Yol Bulunamadı]
 ```
 
-### 5.4. A* (A-Star) Algoritması
+### 6.4. A* (A-Star) Algoritması
 
 A* algoritması, Dijkstra algoritmasının **hedef odaklı** ve daha verimli bir versiyonudur.
 
@@ -183,7 +238,7 @@ graph TD
 ```
 
 
-### 5.5. Welsh–Powell Algoritması (Graf Renklendirme)
+### 6.5. Welsh–Powell Algoritması (Graf Renklendirme)
 
 Welsh–Powell algoritması, grafı **komşu düğümler farklı renklerde olacak şekilde**, mümkün olan **en az sayıda renk** kullanarak boyamayı amaçlayan bir graf renklendirme algoritmasıdır.
 
@@ -201,7 +256,7 @@ graph TD
     F --> G[Bitiş]
  ```
 
-### 5.6 Ayrık Topluluk (Bağlı Bileşen) Analizi
+### 6.6 Ayrık Topluluk (Bağlı Bileşen) Analizi
 
 Ayrık topluluk analizi, graf içerisindeki **birbirleriyle doğrudan veya dolaylı olarak bağlantısı olmayan alt ağları** tespit etmek amacıyla kullanılır. Bu analiz sayesinde grafın kaç farklı bağımsız bileşenden oluştuğu belirlenir.
 
@@ -209,7 +264,7 @@ Her ayrık topluluk, kendi içerisinde bağlantılı düğümlerden oluşurken d
 
 ---
 
-### 5.7 Degree Centrality (Derece Merkeziliği)
+### 6.7 Degree Centrality (Derece Merkeziliği)
 
 Degree Centrality, bir düğümün graf içerisindeki **doğrudan bağlantı sayısını** ölçen temel merkezilik metriklerinden biridir. Bir düğümün derece değeri ne kadar yüksekse, ağ içerisindeki etkileşim düzeyi ve önemi de o kadar yüksek kabul edilir.
 
@@ -217,7 +272,7 @@ Bu projede her düğümün sahip olduğu bağlantı sayısı hesaplanmakta ve **
 
     
 ---
-## 6. Kullanıcı Arayüzü
+## 7. Kullanıcı Arayüzü
 
 Uygulama kullanıcı dostu ve etkileşimli bir arayüze sahiptir:
 
@@ -239,7 +294,7 @@ Uygulama kullanıcı dostu ve etkileşimli bir arayüze sahiptir:
 
 ---
 
-## 7. Testler ve Performans Analizi
+## 8. Testler ve Performans Analizi
 
 - Küçük ölçekli (10–20 düğüm) ve orta ölçekli (50–100 düğüm) graflar oluşturulmuştur. Test sonuçları aşağıdaki tablolarda gösterilmiştir.
 - Tüm algoritmalar bu graflar üzerinde test edilmiştir.
@@ -247,7 +302,7 @@ Uygulama kullanıcı dostu ve etkileşimli bir arayüze sahiptir:
 - Hatalı veri girişleri (aynı sıralamaya sahip üniversitenin tekrar eklenmesi, eksik bilgi girimi, self-loop vb.) sistem tarafından engellenmiştir.
 
 
-### 7.1 Küçük Ölçekli Graf Testi (10–20 Düğüm)
+### 8.1 Küçük Ölçekli Graf Testi (10–20 Düğüm)
 
 Bu test senaryosunda küçük ölçekli bir graf üzerinde temel graf algoritmaları çalıştırılmıştır.  
 Algoritmaların çalışma süreleri ölçülmüş ve sonuçlar aşağıdaki tabloda gösterilmiştir.
@@ -266,7 +321,28 @@ Küçük Ölçekli Graph
 | DFS                 |        <img width="728" height="725" alt="Screenshot 2026-01-01 231922" src="https://github.com/user-attachments/assets/b146da24-be56-47eb-9d87-8489426f715d" />  | 0.000046            |
 ---
 
-## 8.  Kullanılan Teknolojiler
+### 8.2 Orta Ölçekli Graf Testi (50-100 Düğüm)
+
+Bu test senaryosunda orta ölçekli bir graf üzerinde temel graf algoritmaları çalıştırılmıştır.  
+Algoritmaların çalışma süreleri ölçülmüş ve sonuçlar aşağıdaki tabloda gösterilmiştir.
+
+
+<img width="1019" height="879" alt="Ekran görüntüsü 2026-01-02 114830" src="https://github.com/user-attachments/assets/95adeee4-6c00-49b4-916e-5a20e7908282" />
+
+Orta Ölçekli Graph
+
+| Algoritma Adı        | Sonuç Görseli | Çalışma Süresi (sn) |
+|---------------------|---------------|---------------------|
+| Welsh–Powell        |       <img width="974" height="885" alt="Ekran görüntüsü 2026-01-02 115015" src="https://github.com/user-attachments/assets/ee1df0cb-8f87-4140-8e2f-1eaa07bcac35" />
+| 0.000220            |
+| A*                  |       <img width="971" height="878" alt="Ekran görüntüsü 2026-01-02 115436" src="https://github.com/user-attachments/assets/3bd816ce-1f26-4a2b-9e35-8738ed9860a0" />
+| 0.000093            |
+| Dijkstra            |        <img width="971" height="878" alt="Ekran görüntüsü 2026-01-02 115436" src="https://github.com/user-attachments/assets/3bd816ce-1f26-4a2b-9e35-8738ed9860a0" />   | 0.000137            |
+| BFS                 |        <img width="1003" height="880" alt="Ekran görüntüsü 2026-01-02 115825" src="https://github.com/user-attachments/assets/0c1c7375-2580-4441-be93-9b380e3656f7" />   | 0.000093            |
+| DFS                 |       <img width="1003" height="880" alt="Ekran görüntüsü 2026-01-02 115825" src="https://github.com/user-attachments/assets/0c1c7375-2580-4441-be93-9b380e3656f7" />    | 0.000129            |
+---
+
+## 9.  Kullanılan Teknolojiler
 
 - **Python 3.10**  Projenin geliştirildiği temel programlama dili.
 
@@ -282,13 +358,13 @@ Küçük Ölçekli Graph
 
 - **PyCharm**  Proje geliştirme, kod düzenleme ve hata ayıklama süreçlerinde kullanılan entegre geliştirme ortamı (IDE).
 
-## 9. Sonuç ve Tartışma
+## 10. Sonuç ve Tartışma
 
 Bu proje kapsamında, üniversiteler arası akademik ilişkiler graf veri yapısı üzerinde başarıyla modellenmiş ve analiz edilmiştir. Dinamik ağırlık hesaplamaları sayesinde, özellik bakımından birbirine daha yakın üniversiteler görsel olarak daha ilişkili şekilde gösterilebilmekte, kullanıcılar bu yakınlıkları grafik üzerinde doğrudan gözlemleyebilmektedir. Ayrıca uygulanan graf algoritmaları sayesinde, üniversitelerin birbirleriyle olan ilişkileri farklı senaryolar altında test edilebilmekte ve ağ yapısı detaylı olarak analiz edilebilmektedir.
 
 ---
 
-## 10. Olası Geliştirmeler
+## 11. Olası Geliştirmeler
 
 - Daha fazla üniversite eklenerek daha büyük ölçekli bir ağ analizi gerçekleştirilmesi
 - Farklı ülkelerden üniversitelerin dahil edilerek uluslararası akademik ağların analiz edilmesi
@@ -297,4 +373,24 @@ Bu proje kapsamında, üniversiteler arası akademik ilişkiler graf veri yapıs
 
 
 ---
-## 11. Kaynakça
+## 12. Kaynakça
+
+https://visjs.org/
+
+https://visjs.github.io/vis-network/examples/
+
+https://pythonhumanities.com/
+
+https://www.pythonguis.com/tutorials/pyqt-basic-widgets/
+
+https://www.pythonguis.com/tutorials/pyqt-dialogs/
+
+https://medium.com/@enesaksoy1732/pyqt5-kullanarak-basit-bir-web-taray%C4%B1c%C4%B1s%C4%B1-olu%C5%9Fturma-540752f826c3
+
+https://medium.com/cits-tech/python-networkx-ile-graf-teorisi-931699540e73
+
+https://www.geeksforgeeks.org/dsa/dijkstras-shortest-path-algorithm-greedy-algo-7/
+
+https://www.freecodecamp.org/news/graph-algorithms-in-python-bfs-dfs-and-beyond/
+
+https://graphstream-project.org/doc/Algorithms/Welsh-Powell/
